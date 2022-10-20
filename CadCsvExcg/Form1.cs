@@ -1,26 +1,37 @@
 ﻿using System.Data.SQLite;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
-using System.Data.OleDb;
+using System.Data;
+using System.Linq;
 
 namespace CadCsvExcg
 {
     public partial class frmMain : Form
     {
+        private class ComboItem
+        {
+            public Delimiter ID { get; set; }
+            public string Text { get; set; }
+        }
         public frmMain()
         {
             InitializeComponent();
-            InitializeDatabase();
+            // InitializeDatabase();
+
+            var delimiters = new ComboItem[] {
+                new ComboItem{ ID = Delimiter.COMMA, Text = "Comma (,)" },
+                new ComboItem{ ID = Delimiter.TAB, Text = "Tab (    )" },
+            };
+            cobDelimiter1.DataSource = delimiters.Clone();
+            cobDelimiter2.DataSource = delimiters.Clone();
+            cobDelimiter1.DisplayMember = "Text";
+            cobDelimiter1.ValueMember = "ID";
+            cobDelimiter2.DisplayMember = "Text";
+            cobDelimiter2.ValueMember = "ID";
         }
+
 
         static void InitializeDatabase()
         {
@@ -42,10 +53,15 @@ namespace CadCsvExcg
                     command.ExecuteNonQuery();
                     command.CommandText = @"CREATE TABLE table2(id INTEGER PRIMARY KEY)";
                     command.ExecuteNonQuery();
-                }
-                finally
-                {
+
+                    SQLiteDataAdapter da = new SQLiteDataAdapter(command);
+                    // da.Fill(dataTable);
+
                     connection.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
                 }
             }
         }
@@ -83,12 +99,6 @@ namespace CadCsvExcg
             AddFile(lvBom);
         }
 
-        private void cbUseFileName_CheckedChanged(object sender, EventArgs e)
-        {
-            numCad.Enabled = !cbUseFileName.Checked;
-            lblCad.Enabled = numCad.Enabled;
-        }
-
         private void AddFile(ListView listView)
         {
             OpenFileDialog dialog = new OpenFileDialog();
@@ -103,9 +113,10 @@ namespace CadCsvExcg
                         if (listView.FindItemWithText(fileName) == null)
                         {
                             ListViewItem item;
-                            string[] arr = new string[4];
+                            string[] arr = new string[3];
                             arr[0] = System.IO.Path.GetFileName(fileName);
                             arr[1] = fileName;
+                            arr[2] = (new FileInfo(fileName).Length / 1024).ToString() + " KB";
                             item = new ListViewItem(arr);
                             listView.Items.Add(item);
                         }
@@ -192,23 +203,87 @@ namespace CadCsvExcg
 
         private void btnPreview1_Click(object sender, EventArgs e)
         {
-            Preview(lvCad.SelectedItems[0].SubItems[1].Text);
+
+            if (lvCad.SelectedItems.Count == 1)
+            {
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked);
+            }
         }
 
-        private void Preview(string path)
+        private void btnPreview2_Click(object sender, EventArgs e)
         {
-            if (File.Exists(path))
+            if (lvBom.SelectedItems.Count == 1)
             {
-                var frm = new frmPreview();
-                frm.path = path;
-                frm.ShowDialog(this);
+                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked);
             }
-            
         }
 
         private void lvCad_DoubleClick(object sender, EventArgs e)
         {
-            Preview(lvCad.SelectedItems[0].SubItems[1].Text);
+            if (lvCad.SelectedItems.Count == 1)
+            {
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked);
+            }
+        }
+
+        private void lvBom_DoubleClick(object sender, EventArgs e)
+        {
+            if (lvBom.SelectedItems.Count == 1)
+            {
+                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked);
+            }
+        }
+        private void Preview(string path, Delimiter delimiter, bool header, int id = 0, bool append = false)
+        {
+            // Csv.Parse(file, delimiter1, header1, (int)numCad.Value, cbUseFileName.Checked)
+            if (File.Exists(path))
+            {
+                using (frmPreview frm = new frmPreview()) {
+                    frm.loadCSV(path, delimiter.GetString(), header, id, append);
+                    frm.ShowDialog();
+                }
+            }
+        }
+
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                DataTable dt1 = new DataTable();
+                DataTable dt2 = new DataTable();
+                DataTable dtResult = new DataTable();
+                string delimiter1 = ((Delimiter)cobDelimiter1.SelectedValue).GetString();
+                string delimiter2 = ((Delimiter)cobDelimiter2.SelectedValue).GetString();
+                bool header1 = cbHeader1.Checked;
+                bool header2 = cbHeader2.Checked;
+                // merging unidrafCAD CSV files into dataTable
+                foreach (ListViewItem item in lvCad.Items)
+                {
+                    string file = item.SubItems[1].Text;
+                    dt1.Merge(Csv.Parse(file, delimiter1, header1, (int)numCad.Value, cbUseFileName1.Checked));
+                }
+                // merging visualBOM CSV files into dataTable
+                foreach (ListViewItem item in lvBom.Items)
+                {
+                    string path = item.SubItems[1].Text;
+                    dt2.Merge(Csv.Parse(path, delimiter2, header2, (int)numBom.Value));
+                }
+
+                // merge action here
+
+                dtResult.Merge(dt1);
+                dtResult.Merge(dt2);
+
+                // showing result
+                using (frmPreview frm = new frmPreview())
+                {
+                    frm.loadDataTable(dtResult);
+                    frm.ShowDialog();
+                }
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }
