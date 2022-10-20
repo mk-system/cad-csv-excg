@@ -206,7 +206,7 @@ namespace CadCsvExcg
 
             if (lvCad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked);
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, "A COLUMN");
             }
         }
 
@@ -214,7 +214,7 @@ namespace CadCsvExcg
         {
             if (lvBom.SelectedItems.Count == 1)
             {
-                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked);
+                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked, "B COLUMN");
             }
         }
 
@@ -222,7 +222,7 @@ namespace CadCsvExcg
         {
             if (lvCad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked);
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, "A COLUMN");
             }
         }
 
@@ -230,16 +230,16 @@ namespace CadCsvExcg
         {
             if (lvBom.SelectedItems.Count == 1)
             {
-                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked);
+                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked, "B COLUMN");
             }
         }
-        private void Preview(string path, Delimiter delimiter, bool header, int id = 0, bool append = false)
+        private void Preview(string path, Delimiter delimiter, bool header, int id = 0, bool append = false, string colname = "COLUMN")
         {
             // Csv.Parse(file, delimiter1, header1, (int)numCad.Value, cbUseFileName.Checked)
             if (File.Exists(path))
             {
                 using (frmPreview frm = new frmPreview()) {
-                    frm.loadCSV(path, delimiter.GetString(), header, id, append);
+                    frm.loadCSV(path, delimiter.GetString(), header, id, append, colname);
                     frm.ShowDialog();
                 }
             }
@@ -260,17 +260,16 @@ namespace CadCsvExcg
                 foreach (ListViewItem item in lvCad.Items)
                 {
                     string file = item.SubItems[1].Text;
-                    dt1.Merge(Csv.Parse(file, delimiter1, header1, (int)numCad.Value, cbUseFileName1.Checked));
+                    dt1.Merge(CSVUtlity.Parse(file, delimiter1, header1, (int)numCad.Value, cbUseFileName1.Checked, "A COLUMN"));
                 }
                 // merging visualBOM CSV files into dataTable
                 foreach (ListViewItem item in lvBom.Items)
                 {
                     string path = item.SubItems[1].Text;
-                    dt2.Merge(Csv.Parse(path, delimiter2, header2, (int)numBom.Value));
+                    dt2.Merge(CSVUtlity.Parse(path, delimiter2, header2, (int)numBom.Value, cbUseFileName2.Checked, "B COLUMN"));
                 }
 
-                // merge action here
-
+                // merging two tables via primary id
                 dtResult.Merge(dt1);
                 dtResult.Merge(dt2);
 

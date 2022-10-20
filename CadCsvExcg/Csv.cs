@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -6,9 +7,9 @@ using System.Linq;
 
 namespace CadCsvExcg
 {
-    class Csv
+    public static class CSVUtlity
     {
-        public static DataTable Parse(string csv_file_path, string delimiter, bool header = false, int primary = 0, bool append = false)
+        public static DataTable Parse(string csv_file_path, string delimiter, bool header = false, int primary = 0, bool append = false, string colname = "COLUMN")
         {
             DataTable csvData = new DataTable();
             DataColumn[] keys = new DataColumn[1];
@@ -34,7 +35,7 @@ namespace CadCsvExcg
 
                 foreach (var (column, i) in colFields.Select((v, i) => (v, i)))
                 {
-                    DataColumn dc = new DataColumn(header ? column : ("COLUMN " + (i + 1)));
+                    DataColumn dc = new DataColumn(header ? column : (colname + " " + (i + 1)));
                     dc.AllowDBNull = true;
                     
                     csvData.Columns.Add(dc);
