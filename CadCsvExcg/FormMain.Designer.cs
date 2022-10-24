@@ -1,7 +1,7 @@
 ﻿
 namespace CadCsvExcg
 {
-    partial class frmMain
+    partial class FormMain
     {
         /// <summary>
         /// Required designer variable.
@@ -30,16 +30,20 @@ namespace CadCsvExcg
         private void InitializeComponent()
         {
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.grpSettings = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
-            this.numBom = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.btnSelectDir = new System.Windows.Forms.Button();
             this.llblOutputDir = new System.Windows.Forms.LinkLabel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cobEncoding = new System.Windows.Forms.ComboBox();
+            this.lblDelimiter3 = new System.Windows.Forms.Label();
+            this.cobDelimiter3 = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.grpBom = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -49,11 +53,13 @@ namespace CadCsvExcg
             this.btnPreview2 = new System.Windows.Forms.Button();
             this.grpOptions2 = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel10 = new System.Windows.Forms.TableLayoutPanel();
-            this.cbHeader2 = new System.Windows.Forms.CheckBox();
+            this.numBom = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
+            this.cbHeader2 = new System.Windows.Forms.CheckBox();
             this.cbUseFileName2 = new System.Windows.Forms.CheckBox();
             this.cobDelimiter2 = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.txtColumn2 = new System.Windows.Forms.TextBox();
             this.lvBom = new System.Windows.Forms.ListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -72,22 +78,24 @@ namespace CadCsvExcg
             this.numCad = new System.Windows.Forms.NumericUpDown();
             this.cbHeader1 = new System.Windows.Forms.CheckBox();
             this.cbUseFileName1 = new System.Windows.Forms.CheckBox();
+            this.txtColumn1 = new System.Windows.Forms.TextBox();
             this.lvCad = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.fbdOutput = new System.Windows.Forms.FolderBrowserDialog();
+            this.statusStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.grpSettings.SuspendLayout();
             this.tableLayoutPanel8.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numBom)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
             this.grpBom.SuspendLayout();
             this.tableLayoutPanel6.SuspendLayout();
             this.tableLayoutPanel7.SuspendLayout();
             this.grpOptions2.SuspendLayout();
             this.tableLayoutPanel10.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numBom)).BeginInit();
             this.grpCad.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
@@ -98,11 +106,18 @@ namespace CadCsvExcg
             // 
             // statusStrip1
             // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1});
             this.statusStrip1.Location = new System.Drawing.Point(0, 589);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(784, 22);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusbar";
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(0, 17);
             // 
             // tableLayoutPanel1
             // 
@@ -126,7 +141,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.btnStart, 0, 1);
             this.tableLayoutPanel2.Controls.Add(this.btnExit, 0, 2);
-            this.tableLayoutPanel2.Controls.Add(this.groupBox3, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.grpSettings, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(585, 5);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -164,16 +179,16 @@ namespace CadCsvExcg
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
-            // groupBox3
+            // grpSettings
             // 
-            this.groupBox3.Controls.Add(this.tableLayoutPanel8);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.Location = new System.Drawing.Point(3, 3);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(188, 515);
-            this.groupBox3.TabIndex = 7;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Combination settings";
+            this.grpSettings.Controls.Add(this.tableLayoutPanel8);
+            this.grpSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpSettings.Location = new System.Drawing.Point(3, 3);
+            this.grpSettings.Name = "grpSettings";
+            this.grpSettings.Size = new System.Drawing.Size(188, 515);
+            this.grpSettings.TabIndex = 7;
+            this.grpSettings.TabStop = false;
+            this.grpSettings.Text = "Combination settings";
             // 
             // tableLayoutPanel8
             // 
@@ -182,33 +197,29 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.Controls.Add(this.label3, 0, 0);
             this.tableLayoutPanel8.Controls.Add(this.btnSelectDir, 0, 1);
             this.tableLayoutPanel8.Controls.Add(this.llblOutputDir, 0, 2);
+            this.tableLayoutPanel8.Controls.Add(this.label5, 0, 4);
+            this.tableLayoutPanel8.Controls.Add(this.cobEncoding, 0, 5);
+            this.tableLayoutPanel8.Controls.Add(this.lblDelimiter3, 0, 7);
+            this.tableLayoutPanel8.Controls.Add(this.cobDelimiter3, 0, 8);
             this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel8.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel8.Name = "tableLayoutPanel8";
-            this.tableLayoutPanel8.RowCount = 4;
+            this.tableLayoutPanel8.RowCount = 10;
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel8.Size = new System.Drawing.Size(182, 496);
             this.tableLayoutPanel8.TabIndex = 0;
-            // 
-            // numBom
-            // 
-            this.numBom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.numBom.Location = new System.Drawing.Point(69, 76);
-            this.numBom.Name = "numBom";
-            this.numBom.Size = new System.Drawing.Size(110, 20);
-            this.numBom.TabIndex = 3;
-            this.numBom.TabStop = false;
             // 
             // label3
             // 
@@ -246,6 +257,52 @@ namespace CadCsvExcg
             this.llblOutputDir.TabStop = true;
             this.llblOutputDir.Text = "C:\\\\csv_ouputs";
             this.llblOutputDir.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblOutputDir_LinkClicked);
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 75);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(176, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Encoding:";
+            // 
+            // cobEncoding
+            // 
+            this.cobEncoding.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cobEncoding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cobEncoding.FormattingEnabled = true;
+            this.cobEncoding.Location = new System.Drawing.Point(3, 91);
+            this.cobEncoding.Name = "cobEncoding";
+            this.cobEncoding.Size = new System.Drawing.Size(176, 21);
+            this.cobEncoding.TabIndex = 9;
+            this.cobEncoding.SelectedIndexChanged += new System.EventHandler(this.cobEncoding_SelectedIndexChanged);
+            // 
+            // lblDelimiter3
+            // 
+            this.lblDelimiter3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblDelimiter3.AutoSize = true;
+            this.lblDelimiter3.Location = new System.Drawing.Point(3, 135);
+            this.lblDelimiter3.Name = "lblDelimiter3";
+            this.lblDelimiter3.Size = new System.Drawing.Size(176, 13);
+            this.lblDelimiter3.TabIndex = 10;
+            this.lblDelimiter3.Text = "Delimiter:";
+            // 
+            // cobDelimiter3
+            // 
+            this.cobDelimiter3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cobDelimiter3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cobDelimiter3.FormattingEnabled = true;
+            this.cobDelimiter3.Location = new System.Drawing.Point(3, 151);
+            this.cobDelimiter3.Name = "cobDelimiter3";
+            this.cobDelimiter3.Size = new System.Drawing.Size(176, 21);
+            this.cobDelimiter3.TabIndex = 11;
+            this.cobDelimiter3.SelectedIndexChanged += new System.EventHandler(this.cobDelimiter3_SelectedIndexChanged);
             // 
             // tableLayoutPanel3
             // 
@@ -371,16 +428,18 @@ namespace CadCsvExcg
             this.tableLayoutPanel10.ColumnCount = 2;
             this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel10.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel10.Controls.Add(this.numBom, 1, 3);
-            this.tableLayoutPanel10.Controls.Add(this.label2, 0, 3);
+            this.tableLayoutPanel10.Controls.Add(this.numBom, 1, 4);
+            this.tableLayoutPanel10.Controls.Add(this.label2, 0, 4);
             this.tableLayoutPanel10.Controls.Add(this.cbHeader2, 0, 0);
             this.tableLayoutPanel10.Controls.Add(this.cbUseFileName2, 0, 1);
-            this.tableLayoutPanel10.Controls.Add(this.cobDelimiter2, 1, 2);
-            this.tableLayoutPanel10.Controls.Add(this.label4, 0, 2);
+            this.tableLayoutPanel10.Controls.Add(this.cobDelimiter2, 1, 3);
+            this.tableLayoutPanel10.Controls.Add(this.label4, 0, 3);
+            this.tableLayoutPanel10.Controls.Add(this.txtColumn2, 0, 2);
             this.tableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel10.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel10.Name = "tableLayoutPanel10";
-            this.tableLayoutPanel10.RowCount = 5;
+            this.tableLayoutPanel10.RowCount = 6;
+            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -388,6 +447,30 @@ namespace CadCsvExcg
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel10.Size = new System.Drawing.Size(182, 144);
             this.tableLayoutPanel10.TabIndex = 0;
+            // 
+            // numBom
+            // 
+            this.numBom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.numBom.Location = new System.Drawing.Point(69, 102);
+            this.numBom.Name = "numBom";
+            this.numBom.Size = new System.Drawing.Size(110, 20);
+            this.numBom.TabIndex = 3;
+            this.numBom.TabStop = false;
+            this.numBom.ValueChanged += new System.EventHandler(this.numBom_ValueChanged);
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(3, 99);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(60, 26);
+            this.label2.TabIndex = 1;
+            this.label2.Text = "ID position:";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // cbHeader2
             // 
@@ -402,19 +485,7 @@ namespace CadCsvExcg
             this.cbHeader2.TabStop = false;
             this.cbHeader2.Text = "First row is header";
             this.cbHeader2.UseVisualStyleBackColor = true;
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 73);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(60, 26);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "ID position:";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.cbHeader2.CheckedChanged += new System.EventHandler(this.cbHeader2_CheckedChanged);
             // 
             // cbUseFileName2
             // 
@@ -428,6 +499,7 @@ namespace CadCsvExcg
             this.cbUseFileName2.TabIndex = 6;
             this.cbUseFileName2.Text = "Append filename as column";
             this.cbUseFileName2.UseVisualStyleBackColor = true;
+            this.cbUseFileName2.CheckedChanged += new System.EventHandler(this.cbUseFileName2_CheckedChanged);
             // 
             // cobDelimiter2
             // 
@@ -435,11 +507,12 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cobDelimiter2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cobDelimiter2.FormattingEnabled = true;
-            this.cobDelimiter2.Location = new System.Drawing.Point(69, 49);
+            this.cobDelimiter2.Location = new System.Drawing.Point(69, 75);
             this.cobDelimiter2.Name = "cobDelimiter2";
             this.cobDelimiter2.Size = new System.Drawing.Size(110, 21);
             this.cobDelimiter2.TabIndex = 4;
             this.cobDelimiter2.TabStop = false;
+            this.cobDelimiter2.SelectedIndexChanged += new System.EventHandler(this.cobDelimiter2_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -447,12 +520,24 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 46);
+            this.label4.Location = new System.Drawing.Point(3, 72);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(60, 27);
             this.label4.TabIndex = 3;
             this.label4.Text = "Delimiter:";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // txtColumn2
+            // 
+            this.txtColumn2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel10.SetColumnSpan(this.txtColumn2, 2);
+            this.txtColumn2.Location = new System.Drawing.Point(3, 49);
+            this.txtColumn2.Name = "txtColumn2";
+            this.txtColumn2.Size = new System.Drawing.Size(176, 20);
+            this.txtColumn2.TabIndex = 7;
+            this.txtColumn2.TabStop = false;
+            this.txtColumn2.Leave += new System.EventHandler(this.txtColumn2_Leave);
             // 
             // lvBom
             // 
@@ -593,16 +678,18 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.ColumnCount = 2;
             this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel9.Controls.Add(this.label1, 0, 2);
-            this.tableLayoutPanel9.Controls.Add(this.lblCad, 0, 3);
-            this.tableLayoutPanel9.Controls.Add(this.cobDelimiter1, 1, 2);
-            this.tableLayoutPanel9.Controls.Add(this.numCad, 1, 3);
+            this.tableLayoutPanel9.Controls.Add(this.label1, 0, 3);
+            this.tableLayoutPanel9.Controls.Add(this.lblCad, 0, 4);
+            this.tableLayoutPanel9.Controls.Add(this.cobDelimiter1, 1, 3);
+            this.tableLayoutPanel9.Controls.Add(this.numCad, 1, 4);
             this.tableLayoutPanel9.Controls.Add(this.cbHeader1, 0, 0);
             this.tableLayoutPanel9.Controls.Add(this.cbUseFileName1, 0, 1);
+            this.tableLayoutPanel9.Controls.Add(this.txtColumn1, 0, 2);
             this.tableLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel9.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel9.Name = "tableLayoutPanel9";
-            this.tableLayoutPanel9.RowCount = 5;
+            this.tableLayoutPanel9.RowCount = 6;
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -617,7 +704,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 46);
+            this.label1.Location = new System.Drawing.Point(3, 72);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(60, 27);
             this.label1.TabIndex = 3;
@@ -630,7 +717,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCad.AutoSize = true;
-            this.lblCad.Location = new System.Drawing.Point(3, 73);
+            this.lblCad.Location = new System.Drawing.Point(3, 99);
             this.lblCad.Name = "lblCad";
             this.lblCad.Size = new System.Drawing.Size(60, 26);
             this.lblCad.TabIndex = 0;
@@ -643,21 +730,23 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cobDelimiter1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cobDelimiter1.FormattingEnabled = true;
-            this.cobDelimiter1.Location = new System.Drawing.Point(69, 49);
+            this.cobDelimiter1.Location = new System.Drawing.Point(69, 75);
             this.cobDelimiter1.Name = "cobDelimiter1";
             this.cobDelimiter1.Size = new System.Drawing.Size(110, 21);
             this.cobDelimiter1.TabIndex = 4;
             this.cobDelimiter1.TabStop = false;
+            this.cobDelimiter1.SelectedIndexChanged += new System.EventHandler(this.cobDelimiter1_SelectedIndexChanged);
             // 
             // numCad
             // 
             this.numCad.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numCad.Location = new System.Drawing.Point(69, 76);
+            this.numCad.Location = new System.Drawing.Point(69, 102);
             this.numCad.Name = "numCad";
             this.numCad.Size = new System.Drawing.Size(110, 20);
             this.numCad.TabIndex = 2;
             this.numCad.TabStop = false;
+            this.numCad.ValueChanged += new System.EventHandler(this.numCad_ValueChanged);
             // 
             // cbHeader1
             // 
@@ -672,6 +761,7 @@ namespace CadCsvExcg
             this.cbHeader1.TabStop = false;
             this.cbHeader1.Text = "First row is header";
             this.cbHeader1.UseVisualStyleBackColor = true;
+            this.cbHeader1.CheckedChanged += new System.EventHandler(this.cbHeader1_CheckedChanged);
             // 
             // cbUseFileName1
             // 
@@ -686,6 +776,20 @@ namespace CadCsvExcg
             this.cbUseFileName1.TabStop = false;
             this.cbUseFileName1.Text = "Append filename as column";
             this.cbUseFileName1.UseVisualStyleBackColor = true;
+            this.cbUseFileName1.CheckedChanged += new System.EventHandler(this.cbUseFileName1_CheckedChanged);
+            // 
+            // txtColumn1
+            // 
+            this.txtColumn1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.tableLayoutPanel9.SetColumnSpan(this.txtColumn1, 2);
+            this.txtColumn1.Location = new System.Drawing.Point(3, 49);
+            this.txtColumn1.Name = "txtColumn1";
+            this.txtColumn1.Size = new System.Drawing.Size(176, 20);
+            this.txtColumn1.TabIndex = 10;
+            this.txtColumn1.TabStop = false;
+            this.txtColumn1.Text = "ユニット品目番号";
+            this.txtColumn1.Leave += new System.EventHandler(this.txtColumn1_Leave);
             // 
             // lvCad
             // 
@@ -734,15 +838,14 @@ namespace CadCsvExcg
             this.Name = "frmMain";
             this.ShowIcon = false;
             this.Text = "CadCsvExcg";
-            this.MaximizedBoundsChanged += new System.EventHandler(this.frmMain_MaximizedBoundsChanged);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
-            this.ResizeEnd += new System.EventHandler(this.frmMain_ResizeEnd);
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
+            this.grpSettings.ResumeLayout(false);
             this.tableLayoutPanel8.ResumeLayout(false);
             this.tableLayoutPanel8.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numBom)).EndInit();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.grpBom.ResumeLayout(false);
             this.tableLayoutPanel6.ResumeLayout(false);
@@ -750,6 +853,7 @@ namespace CadCsvExcg
             this.grpOptions2.ResumeLayout(false);
             this.tableLayoutPanel10.ResumeLayout(false);
             this.tableLayoutPanel10.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numBom)).EndInit();
             this.grpCad.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel5.ResumeLayout(false);
@@ -784,7 +888,7 @@ namespace CadCsvExcg
         private System.Windows.Forms.Button btnRemove1;
         private System.Windows.Forms.Button btnPreview1;
         private System.Windows.Forms.ListView lvCad;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox grpSettings;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel8;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown numBom;
@@ -812,6 +916,13 @@ namespace CadCsvExcg
         private System.Windows.Forms.GroupBox grpOptions2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel10;
         private System.Windows.Forms.CheckBox cbUseFileName2;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox cobEncoding;
+        private System.Windows.Forms.TextBox txtColumn1;
+        private System.Windows.Forms.TextBox txtColumn2;
+        private System.Windows.Forms.Label lblDelimiter3;
+        private System.Windows.Forms.ComboBox cobDelimiter3;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

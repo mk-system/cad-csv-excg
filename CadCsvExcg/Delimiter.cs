@@ -19,5 +19,10 @@
                     return ",";
             }
         }
+
+        public static int GetIndex(this Delimiter d)
+        {
+            return (int)d;
+        }
     }
 }

@@ -48,11 +48,12 @@ D:\Projects\cad-csv-excg\CadCsvExcg\bin\Debug\System.Memory.xml
 D:\Projects\cad-csv-excg\CadCsvExcg\bin\Debug\System.Numerics.Vectors.xml
 D:\Projects\cad-csv-excg\CadCsvExcg\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.csproj.AssemblyReference.cache
-D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.frmPreview.resources
 D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.Properties.Resources.resources
 D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.csproj.GenerateResource.cache
 D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.csproj.CoreCompileInputs.cache
 D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.csproj.CopyComplete
 D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.exe
 D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.pdb
-D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.frmMain.resources
+D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.FormProcess.resources
+D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.FormMain.resources
+D:\Projects\cad-csv-excg\CadCsvExcg\obj\Debug\CadCsvExcg.FormPreview.resources
