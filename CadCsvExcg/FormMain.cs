@@ -1,13 +1,8 @@
-﻿using System.Data.SQLite;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.IO;
-using System.Data;
 using System.Linq;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Collections.Generic;
 
 namespace CadCsvExcg
@@ -82,7 +77,7 @@ namespace CadCsvExcg
         }
 
 
-        static void InitializeDatabase()
+        /*static void InitializeDatabase()
         {
             using (var connection = new SQLiteConnection("Data Source=database.db;New=True;Compress=True;"))
             {
@@ -113,7 +108,7 @@ namespace CadCsvExcg
                     MessageBox.Show(ex.Message);
                 }
             }
-        }
+        }*/
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {

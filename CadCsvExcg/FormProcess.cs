@@ -4,12 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CadCsvExcg
@@ -408,47 +405,51 @@ namespace CadCsvExcg
                         break;
                 }
 
-
-                using (Stream s = File.Create(outputPath))
+                try { 
+                    using (Stream s = File.Create(outputPath))
+                    {
+                        StreamWriter sw = new StreamWriter(s, encoding);
+                        if (header)
+                        {
+                            for (int i = 0; i < dt.Columns.Count; i++)
+                            {
+                                sw.Write(dt.Columns[i]);
+                                if (i < dt.Columns.Count - 1)
+                                {
+                                    sw.Write(delimiter);
+                                }
+                            }
+                            sw.Write(sw.NewLine);
+                        }
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            for (int i = 0; i < dt.Columns.Count; i++)
+                            {
+                                if (!Convert.IsDBNull(dr[i]))
+                                {
+                                    string value = dr[i].ToString();
+                                    if (value.Contains(","))
+                                    {
+                                        value = String.Format("\"{0}\"", value);
+                                        sw.Write(value);
+                                    }
+                                    else
+                                    {
+                                        sw.Write(dr[i].ToString());
+                                    }
+                                }
+                                if (i < dt.Columns.Count - 1)
+                                {
+                                    sw.Write(delimiter);
+                                }
+                            }
+                            sw.Write(sw.NewLine);
+                        }
+                        sw.Close();
+                    }
+                } catch (Exception ex)
                 {
-                    StreamWriter sw = new StreamWriter(s, encoding);
-                    if (header)
-                    {
-                        for (int i = 0; i < dt.Columns.Count; i++)
-                        {
-                            sw.Write(dt.Columns[i]);
-                            if (i < dt.Columns.Count - 1)
-                            {
-                                sw.Write(delimiter);
-                            }
-                        }
-                        sw.Write(sw.NewLine);
-                    }
-                    foreach (DataRow dr in dt.Rows)
-                    {
-                        for (int i = 0; i < dt.Columns.Count; i++)
-                        {
-                            if (!Convert.IsDBNull(dr[i]))
-                            {
-                                string value = dr[i].ToString();
-                                if (value.Contains(","))
-                                {
-                                    value = String.Format("\"{0}\"", value);
-                                    sw.Write(value);
-                                }
-                                else
-                                {
-                                    sw.Write(dr[i].ToString());
-                                }
-                            }
-                            if (i < dt.Columns.Count - 1)
-                            {
-                                sw.Write(delimiter);
-                            }
-                        }
-                        sw.Write(sw.NewLine);
-                    }
-                    sw.Close();
+                    MessageBox.Show(ex.Message);
                 }
                 try
                 {
