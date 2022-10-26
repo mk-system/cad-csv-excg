@@ -162,8 +162,16 @@ namespace CadCsvExcg
                 }
                 e.Result = dt;
             }
-            catch (Exception)
-            { }
+            catch (Exception ex)
+            {
+                if (backgroundWorker1.WorkerSupportsCancellation == true)
+                {
+                    backgroundWorker1.CancelAsync();
+                }
+                this.ControlBox = true;
+                MessageBox.Show(ex.Message);
+                throw;
+            }
         }
 
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -340,17 +348,23 @@ namespace CadCsvExcg
                 DataTable resultDt = new DataTable();
                 resultDt = dt3.Clone();
                 // joining datatables
-                var result = from table1 in dt1.AsEnumerable()
-                            join table2 in dt2.AsEnumerable() on new { ID = table1[primary1] } equals new { ID = table2[primary2] }
-                            into temp
-                            from table3 in temp.DefaultIfEmpty()
-                            select resultDt.LoadDataRow(Concatenate((object[])table1.ItemArray, (object[])table3.ItemArray, primary2), false);
+                var result = from t1 in dt1.AsEnumerable()
+                             join t2 in dt2.AsEnumerable() on new { ID = t1[primary1] } equals new { ID = t2[primary2] }
+                             into tmp
+                             from t3 in tmp.DefaultIfEmpty()
+                             select resultDt.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t3.ItemArray, primary2), true);
 
-                  e.Result = result.CopyToDataTable();
+                e.Result = result.CopyToDataTable();
             }
             catch (Exception ex)
             {
+                if (backgroundWorker2.WorkerSupportsCancellation == true)
+                {
+                    backgroundWorker2.CancelAsync();
+                }
+                this.ControlBox = true;
                 MessageBox.Show(ex.Message);
+                throw;
             }
         }
 
@@ -405,7 +419,9 @@ namespace CadCsvExcg
                         break;
                 }
 
-                try { 
+
+                try
+                {
                     using (Stream s = File.Create(outputPath))
                     {
                         StreamWriter sw = new StreamWriter(s, encoding);
@@ -447,17 +463,13 @@ namespace CadCsvExcg
                         }
                         sw.Close();
                     }
-                } catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                try
-                {
+                    MessageBox.Show("File saved to the output directory.", "Finished");
                     var fullPath = System.IO.Path.GetFullPath(Properties.Settings.Default.output);
                     Process.Start("explorer.exe", @"" + fullPath + "");
                 }
                 catch (Exception ex)
                 {
+                    this.ControlBox = true;
                     MessageBox.Show(ex.Message);
                 }
             }
