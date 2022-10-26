@@ -78,6 +78,7 @@ namespace CadCsvExcg
             this.txtColumn2.Text = Properties.Settings.Default.column2;
             this.llblOutputDir.Text = Properties.Settings.Default.output;
             this.cobEncoding.SelectedIndex = Properties.Settings.Default.encoding;
+            this.numQuantity.Value = (int)Properties.Settings.Default.quantity;
         }
 
 
@@ -253,7 +254,7 @@ namespace CadCsvExcg
         {
             if (lvCad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, 0, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, txtColumn1.Text);
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, 0, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, txtColumn1.Text, true, (int)numQuantity.Value);
             }
         }
 
@@ -269,7 +270,7 @@ namespace CadCsvExcg
         {
             if (lvCad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, 0, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, txtColumn1.Text);
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, 0, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, txtColumn1.Text, true, (int)numQuantity.Value);
             }
         }
 
@@ -280,7 +281,7 @@ namespace CadCsvExcg
                 Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, 0, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked, txtColumn2.Text);
             }
         }
-        private void Preview(string path, Delimiter delimiter, int columnNameStartNum, bool header, int id = 0, bool append = false, string fileColumnName = "FILENAME")
+        private void Preview(string path, Delimiter delimiter, int columnNameStartNum, bool header, int id = 0, bool append = false, string fileColumnName = "FILENAME", bool isCad = false, int qpos = 0)
         {
             Loading(true);
             using (FormProcess frm = new FormProcess())
@@ -293,7 +294,9 @@ namespace CadCsvExcg
                     columnNameStartNum,
                     id,
                     append,
-                    fileColumnName
+                    fileColumnName,
+                    isCad,
+                    qpos,
                 };
                 frm.Preview(args);
                 frm.ShowDialog();
@@ -328,6 +331,7 @@ namespace CadCsvExcg
                 bool extra2 = cbUseFileName2.Checked;
                 string extraName1 = txtColumn1.Text;
                 string extraName2 = txtColumn2.Text;
+                int quantity = (int)numQuantity.Value;
 
                 foreach (ListViewItem item in lvCad.Items)
                 {
@@ -354,51 +358,12 @@ namespace CadCsvExcg
                         extra1,
                         extra2,
                         extraName1,
-                        extraName2
+                        extraName2,
+                        quantity
                     };
 
                 frm.Combine(args);
                 frm.ShowDialog();
-            }
-            try
-            {
-
-
-
-                /*DataTable dt1 = new DataTable();
-                DataTable dt2 = new DataTable();
-                DataTable dtResult = new DataTable();
-                string delimiter1 = ((Delimiter)cobDelimiter1.SelectedValue).GetString();
-                string delimiter2 = ((Delimiter)cobDelimiter2.SelectedValue).GetString();
-                bool header1 = cbHeader1.Checked;
-                bool header2 = cbHeader2.Checked;
-                // merging unidrafCAD CSV files into dataTable
-                foreach (ListViewItem item in lvCad.Items)
-                {
-                    string file = item.SubItems[1].Text;
-                    dt1.Merge(CSVUtility.Import(file, delimiter1, 0, header1, (int)numCad.Value, cbUseFileName1.Checked, txtColumn1.Text));
-                }
-                // merging visualBOM CSV files into dataTable
-                foreach (ListViewItem item in lvBom.Items)
-                {
-                    string path = item.SubItems[1].Text;
-                    dt2.Merge(CSVUtility.Import(path, delimiter2, dt1.Columns.Count, header2, (int)numBom.Value, cbUseFileName2.Checked, txtColumn2.Text));
-                }
-
-                // merging two tables via primary id
-                dtResult.Merge(dt1);
-                dtResult.Merge(dt2);*/
-
-                // showing result
-                /*using (FormPreview frm = new FormPreview())
-                {
-                    frm.LoadDataTable(dtResult);
-                    frm.ShowDialog();
-                }*/
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
             }
         }
 
@@ -434,6 +399,7 @@ namespace CadCsvExcg
                 Properties.Settings.Default.column2 = txtColumn2.Text;
                 Properties.Settings.Default.output = llblOutputDir.Text;
                 Properties.Settings.Default.encoding = cobEncoding.SelectedIndex;
+                Properties.Settings.Default.quantity = (int)numQuantity.Value;
                 Properties.Settings.Default.Save();
             }
         }
@@ -498,6 +464,11 @@ namespace CadCsvExcg
         }
 
         private void cobDelimiter3_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            saveConfig();
+        }
+
+        private void numQuantity_ValueChanged(object sender, EventArgs e)
         {
             saveConfig();
         }

@@ -178,5 +178,17 @@ namespace CadCsvExcg.Properties {
                 this["delimiter3"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int quantity {
+            get {
+                return ((int)(this["quantity"]));
+            }
+            set {
+                this["quantity"] = value;
+            }
+        }
     }
 }

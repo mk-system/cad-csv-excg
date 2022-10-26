@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -70,7 +71,6 @@ namespace CadCsvExcg
             {
                 BackgroundWorker worker = sender as BackgroundWorker;
                 DataTable dt = new DataTable();
-                DataColumn[] keys = new DataColumn[1];
                 List<object> genericList = e.Argument as List<object>;
                 string path = (string)genericList[0];
                 string delimiter = (string)genericList[1];
@@ -79,6 +79,8 @@ namespace CadCsvExcg
                 int primary_column = (int)genericList[4];
                 bool extra_column = (bool)genericList[5];
                 string extra_column_name = (string)genericList[6];
+                bool is_cad = (bool)genericList[7];
+                int quantity_column = (int)genericList[8];
 
                 string file_name = Path.GetFileNameWithoutExtension(path);
                 int numberOfLines = File.ReadLines(path).Count();
@@ -90,15 +92,20 @@ namespace CadCsvExcg
                     reader.HasFieldsEnclosedInQuotes = true;
                     string[] colFields = reader.ReadFields();
 
+                    if (is_cad && primary_column > 0 && quantity_column > 0)
+                    {
+                        colFields = colFields.Where((el, i) => i == primary_column - 1 || i == quantity_column - 1).ToArray();
+                    }
+
                     if (extra_column)
                     {
                         if (is_first_line_header)
                         {
-                            colFields = InsertNewField(colFields, extra_column_name);
+                            colFields = PrependNewField(colFields, extra_column_name);
                         }
                         else
                         {
-                            colFields = InsertNewField(colFields, file_name);
+                            colFields = PrependNewField(colFields, file_name);
                         }
                     }
 
@@ -106,12 +113,7 @@ namespace CadCsvExcg
                     {
                         DataColumn dc = new DataColumn(is_first_line_header ? column : ("COLUMN " + (column_start_number + i + 1)));
                         dc.AllowDBNull = true;
-
                         dt.Columns.Add(dc);
-                        if (primary_column > 0 && primary_column - 1 == i)
-                        {
-                            keys[0] = dc;
-                        }
                     }
 
                     if (!is_first_line_header)
@@ -132,9 +134,14 @@ namespace CadCsvExcg
                         {
                             string[] fieldData = reader.ReadFields();
 
+                            if (is_cad && primary_column > 0 && quantity_column > 0)
+                            {
+                                fieldData = fieldData.Where((el, i) => i == primary_column - 1 || i == quantity_column - 1).ToArray();
+                            }
+
                             if (extra_column)
                             {
-                                fieldData = InsertNewField(fieldData, file_name);
+                                fieldData = PrependNewField(fieldData, file_name);
                             }
 
                             for (int i = 0; i < fieldData.Length; i++)
@@ -193,10 +200,16 @@ namespace CadCsvExcg
         }
 
 
-        private static string[] InsertNewField(string[] target, string data, int index = 0)
+        private static string[] PrependNewField(string[] target, string data)
         {
             List<string> list = new List<string>(target);
-            list.Insert(index, data);
+            list.Insert(0, data);
+            return list.ToArray();
+        }
+
+        private static string[] BuildNewFields(string[] target, int primary, int quantity)
+        {
+            List<string> list = new List<string>(target);
             return list.ToArray();
         }
 
@@ -211,20 +224,10 @@ namespace CadCsvExcg
                 List<object> genericList = e.Argument as List<object>;
                 string[] paths1 = (string[])genericList[0];
                 string[] paths2 = (string[])genericList[1];
-                /*  string delimiter1 = (string)genericList[2];
-                  string delimiter2 = (string)genericList[3];
-                  bool is_first_line_header1 = (bool)genericList[4];
-                  bool is_first_line_header2 = (bool)genericList[5];
-                  int primary_column1 = (int)genericList[6];
-                  int primary_column2 = (int)genericList[7];
-                  bool extra_column1 = (bool)genericList[8];
-                  bool extra_column2 = (bool)genericList[9];
-                  string extra_column_name1 = (string)genericList[10];
-                  string extra_column_name2 = (string)genericList[11];*/
-
                 int total = paths1.Count() + paths2.Count();
                 int current = 0;
 
+                // Repeat twice; 0: cad, 1: bom
                 for (var i = 0; i < 2; i++)
                 {
                     int column_start_number = 0;
@@ -235,7 +238,6 @@ namespace CadCsvExcg
                     foreach (var path in (string[])genericList[0 + i])
                     {
                         DataTable dt = new DataTable();
-                        DataColumn[] keys = new DataColumn[1];
 
                         string file_name = Path.GetFileNameWithoutExtension(path);
 
@@ -249,15 +251,21 @@ namespace CadCsvExcg
                             reader.SetDelimiters(new string[] { (string)genericList[2 + i] });
                             reader.HasFieldsEnclosedInQuotes = true;
                             string[] colFields = reader.ReadFields();
+
+                            if (i == 0 && (int)genericList[6] > 0 && (int)genericList[12] > 0)
+                            {
+                                colFields = colFields.Where((el, id) => id == (int)genericList[6] - 1 || id == (int)genericList[12] - 1).ToArray();
+                            }
+
                             if ((bool)genericList[8 + i])
                             {
                                 if ((bool)genericList[4 + i])
                                 {
-                                    colFields = InsertNewField(colFields, (string)genericList[10 + i]);
+                                    colFields = PrependNewField(colFields, (string)genericList[10 + i]);
                                 }
                                 else
                                 {
-                                    colFields = InsertNewField(colFields, file_name);
+                                    colFields = PrependNewField(colFields, file_name);
                                 }
                             }
 
@@ -266,11 +274,6 @@ namespace CadCsvExcg
                                 DataColumn dc = new DataColumn((bool)genericList[4 + i] ? column : ("COLUMN " + (column_start_number + j + 1)));
                                 dc.AllowDBNull = true;
                                 dt.Columns.Add(dc);
-
-                                if ((int)genericList[6 + i] > 0 && (int)genericList[6 + i] - 1 == j)
-                                {
-                                    keys[0] = dc;
-                                }
                             }
 
                             if (!(bool)genericList[4 + i])
@@ -288,9 +291,14 @@ namespace CadCsvExcg
                                 {
                                     string[] fieldData = reader.ReadFields();
 
+                                    if (i == 0 && (int)genericList[6] > 0 && (int)genericList[12] > 0)
+                                    {
+                                        fieldData = fieldData.Where((el, id) => id == (int)genericList[6] - 1 || id == (int)genericList[12] - 1).ToArray();
+                                    }
+
                                     if ((bool)genericList[8 + i])
                                     {
-                                        fieldData = InsertNewField(fieldData, file_name);
+                                        fieldData = PrependNewField(fieldData, file_name);
                                     }
 
                                     for (int j = 0; j < fieldData.Length; j++)
@@ -305,18 +313,13 @@ namespace CadCsvExcg
                                     lineCount++;
 
                                     int complete = (int)Math.Round((double)(100 * lineCount) / numberOfLines / total + (100 * current - 1) / total);
-                                    
+
                                     if (this.progressBar1.Value < complete)
                                     {
                                         worker.ReportProgress(complete);
                                     }
                                 }
                             }
-                        }
-
-                        if ((int)genericList[6 + i] > 0)
-                        {
-                            dt.PrimaryKey = keys;
                         }
 
                         if (i == 0)
@@ -330,9 +333,23 @@ namespace CadCsvExcg
                         current++;
                     }
                 }
-                dt3.Merge(dt1);
-                dt3.Merge(dt2);
-                e.Result = dt3;
+
+                int primary1 = (bool)genericList[8] ? (int)genericList[6] : (int)genericList[6] - 1;
+                int primary2 = (bool)genericList[9] ? (int)genericList[7] : (int)genericList[7] - 1;
+
+                // getting all columns
+                dt3.Merge(dt1, false, MissingSchemaAction.AddWithKey);
+                dt3.Merge(dt2, false, MissingSchemaAction.Add);
+                DataTable resultDt = new DataTable();
+                resultDt = dt3.Clone();
+                // joining datatables
+                var result = from table1 in dt1.AsEnumerable()
+                            join table2 in dt2.AsEnumerable() on new { ID = table1[primary1] } equals new { ID = table2[primary2] }
+                            into temp
+                            from table3 in temp.DefaultIfEmpty()
+                            select resultDt.LoadDataRow(Concatenate((object[])table1.ItemArray, (object[])table3.ItemArray, primary2), false);
+
+                  e.Result = result.CopyToDataTable();
             }
             catch (Exception ex)
             {
@@ -363,7 +380,7 @@ namespace CadCsvExcg
                 lblResult.Text = "Done!";
                 button1.Enabled = false;
                 DateTime now = DateTime.Now;
-                string outputPath = Properties.Settings.Default.output + "\\" + now.ToString("ddMMyyyy_HHmmss") + ".csv";
+                string outputPath = Properties.Settings.Default.output + "\\" + now.ToString("ddMMyyyyHHmmss") + ".csv";
                 bool header = Properties.Settings.Default.header1 || Properties.Settings.Default.header2;
                 DataTable dt = (DataTable)e.Result;
                 string delimiter = Properties.Settings.Default.delimiter3 == 0 ? Delimiter.COMMA.GetString() : Delimiter.TAB.GetString();
@@ -390,7 +407,7 @@ namespace CadCsvExcg
                         encoding = Encoding.UTF8;
                         break;
                 }
-                
+
 
                 using (Stream s = File.Create(outputPath))
                 {
@@ -446,6 +463,13 @@ namespace CadCsvExcg
             this.Close();
         }
 
-        
+        public static T[] Concatenate<T>(T[] array1, T[] array2, int excludedIndex = 0)
+        {
+            T[] result = new T[array1.Length + array2.Length - 1];
+            array1.CopyTo(result, 0);
+            array2.Where((v, i) => i != excludedIndex).ToArray().CopyTo(result, array1.Length);
+            return result;
+        }
     }
+
 }
