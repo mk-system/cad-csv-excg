@@ -92,6 +92,7 @@
   <ItemGroup>
     <Compile Include="CSVUtility.cs" />
     <Compile Include="Delimiter.cs" />
+    <Compile Include="Encoder.cs" />
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>

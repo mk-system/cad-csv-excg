@@ -19,10 +19,8 @@ namespace CadCsvExcg
             this.ControlBox = false;
             backgroundWorker1.WorkerReportsProgress = true;
             backgroundWorker1.WorkerSupportsCancellation = true;
-
             backgroundWorker2.WorkerReportsProgress = true;
             backgroundWorker2.WorkerSupportsCancellation = true;
-
             button1.Text = "Cancel";
         }
 
@@ -67,58 +65,25 @@ namespace CadCsvExcg
             try
             {
                 BackgroundWorker worker = sender as BackgroundWorker;
-                DataTable dt = new DataTable();
+
                 List<object> genericList = e.Argument as List<object>;
                 string path = (string)genericList[0];
-                string delimiter = (string)genericList[1];
-                bool is_first_line_header = (bool)genericList[2];
-                int column_start_number = (int)genericList[3];
-                int primary_column = (int)genericList[4];
-                bool extra_column = (bool)genericList[5];
-                string extra_column_name = (string)genericList[6];
-                bool is_cad = (bool)genericList[7];
-                int quantity_column = (int)genericList[8];
+                int configurationNumber = (int)genericList[1];
+                bool isCAD = (bool)genericList[2];
+                CSVConfig config = new CSVConfig(configurationNumber);
 
-                string file_name = Path.GetFileNameWithoutExtension(path);
-                int numberOfLines = File.ReadLines(path).Count();
-                int lineCount = 0;
+                DataTable dt = new DataTable();
+
+                string fileName = Path.GetFileNameWithoutExtension(path);
+                long totalLines = File.ReadLines(path).Count();
+
                 using (TextFieldParser reader = new TextFieldParser(path))
                 {
                     reader.TextFieldType = FieldType.Delimited;
-                    reader.SetDelimiters(new string[] { delimiter });
+                    reader.SetDelimiters(new string[] { config.delimiter });
                     reader.HasFieldsEnclosedInQuotes = true;
-                    string[] colFields = reader.ReadFields();
 
-                    if (is_cad && primary_column > 0 && quantity_column > 0)
-                    {
-                        colFields = colFields.Where((el, i) => i == primary_column - 1 || i == quantity_column - 1).ToArray();
-                    }
-
-                    if (extra_column)
-                    {
-                        if (is_first_line_header)
-                        {
-                            colFields = PrependNewField(colFields, extra_column_name);
-                        }
-                        else
-                        {
-                            colFields = PrependNewField(colFields, file_name);
-                        }
-                    }
-
-                    foreach (var (column, i) in colFields.Select((v, i) => (v, i)))
-                    {
-                        DataColumn dc = new DataColumn(is_first_line_header ? column : ("COLUMN " + (column_start_number + i + 1)));
-                        dc.AllowDBNull = true;
-                        dt.Columns.Add(dc);
-                    }
-
-                    if (!is_first_line_header)
-                    {
-                        dt.Rows.Add(colFields);
-                    }
-
-                    lineCount++;
+                    long currentLine = 0;
 
                     while (!reader.EndOfData)
                     {
@@ -129,35 +94,66 @@ namespace CadCsvExcg
                         }
                         else
                         {
-                            string[] fieldData = reader.ReadFields();
+                            string[] fields = reader.ReadFields();
 
-                            if (is_cad && primary_column > 0 && quantity_column > 0)
+                            if (isCAD && config.columnMatchPosition > 0 && config.columnQuantityPosition > 0)
                             {
-                                fieldData = fieldData.Where((el, i) => i == primary_column - 1 || i == quantity_column - 1).ToArray();
+                                fields = fields.Where((el, i) => i == config.columnMatchPosition - 1 || i == config.columnQuantityPosition - 1).ToArray();
                             }
-
-                            if (extra_column)
+                            if (config.usingFilename)
                             {
-                                fieldData = PrependNewField(fieldData, file_name);
-                            }
-
-                            for (int i = 0; i < fieldData.Length; i++)
-                            {
-                                if (fieldData[i] == "")
+                                string newField;
+                                if (currentLine == 0 && config.hasHeaderRow)
                                 {
-                                    fieldData[i] = null;
+                                    newField = config.columnFilenameText;
+                                }
+                                else
+                                {
+                                    newField = fileName;
+                                }
+                                fields = PrependNewField(fields, newField);
+                            }
+                            for (int i = 0; i < fields.Length; i++)
+                            {
+                                if (fields[i] == "")
+                                {
+                                    fields[i] = null;
                                 }
                             }
-                            dt.Rows.Add(fieldData);
-                            lineCount++;
-
-                            int complete = (int)Math.Round((double)(100 * lineCount) / numberOfLines);
+                            if (currentLine == 0)
+                            {
+                                bool duplicated = false;
+                                if (config.hasHeaderRow && fields.Length != fields.Distinct().Count())
+                                {
+                                    MessageBox.Show("Could not set first line as header.", "Duplicated fields");
+                                    duplicated = true;
+                                }
+                                foreach (var field in fields)
+                                {
+                                    DataColumn dc = new DataColumn(config.hasHeaderRow && !duplicated ? field : null)
+                                    {
+                                        AllowDBNull = true
+                                    };
+                                    dt.Columns.Add(dc);
+                                }
+                                if (!config.hasHeaderRow || duplicated)
+                                {
+                                    dt.Rows.Add(fields);
+                                }
+                            }
+                            else
+                            {
+                                dt.Rows.Add(fields);
+                            }
+                            currentLine = reader.LineNumber;
+                            int complete = (int)Math.Round((double)(100 * currentLine) / totalLines);
+                            // only update progressbar if complete is increased
                             if (this.progressBar1.Value < complete)
                             {
                                 worker.ReportProgress(complete);
                             }
-
                         }
+
                     }
                 }
                 e.Result = dt;
@@ -168,7 +164,6 @@ namespace CadCsvExcg
                 {
                     backgroundWorker1.CancelAsync();
                 }
-                this.ControlBox = true;
                 MessageBox.Show(ex.Message);
                 throw;
             }
@@ -182,6 +177,8 @@ namespace CadCsvExcg
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            this.ControlBox = true;
+            progressBar1.Value = progressBar1.Maximum;
             if (e.Cancelled == true)
             {
                 lblResult.Text = "Canceled!";
@@ -193,7 +190,6 @@ namespace CadCsvExcg
             }
             else
             {
-                progressBar1.Value = progressBar1.Maximum;
                 lblResult.Text = "Done!";
                 button1.Enabled = false;
                 using (FormPreview frm = new FormPreview((DataTable)e.Result))
@@ -212,12 +208,6 @@ namespace CadCsvExcg
             return list.ToArray();
         }
 
-        private static string[] BuildNewFields(string[] target, int primary, int quantity)
-        {
-            List<string> list = new List<string>(target);
-            return list.ToArray();
-        }
-
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         {
             try
@@ -226,65 +216,37 @@ namespace CadCsvExcg
                 DataTable dt1 = new DataTable();
                 DataTable dt2 = new DataTable();
                 DataTable dt3 = new DataTable();
+
                 List<object> genericList = e.Argument as List<object>;
                 string[] paths1 = (string[])genericList[0];
                 string[] paths2 = (string[])genericList[1];
-                int total = paths1.Count() + paths2.Count();
-                int current = 0;
 
+                CSVConfig config1 = new CSVConfig(1);
+                CSVConfig config2 = new CSVConfig(2);
+
+                int totalPaths = paths1.Count() + paths2.Count();
+                int currentPath = 0;
                 // Repeat twice; 0: cad, 1: bom
                 for (var i = 0; i < 2; i++)
                 {
-                    int column_start_number = 0;
-                    if (i != 0)
+                    CSVConfig config = (i == 0) ? config1 : config2;
+                    int columnStartNumber = 0;
+                    if (i == 1)
                     {
-                        column_start_number = (int)dt1.Columns.Count;
+                        columnStartNumber = (int)dt1.Columns.Count;
                     }
                     foreach (var path in (string[])genericList[0 + i])
                     {
                         DataTable dt = new DataTable();
-
-                        string file_name = Path.GetFileNameWithoutExtension(path);
-
-                        int lineCount = 0;
-
-                        int numberOfLines = File.ReadLines(path).Count();
-
+                        string fileName = Path.GetFileNameWithoutExtension(path);
                         using (TextFieldParser reader = new TextFieldParser(path))
                         {
                             reader.TextFieldType = FieldType.Delimited;
-                            reader.SetDelimiters(new string[] { (string)genericList[2 + i] });
+                            reader.SetDelimiters(new string[] { config.delimiter });
                             reader.HasFieldsEnclosedInQuotes = true;
-                            string[] colFields = reader.ReadFields();
+                            long totalLines = File.ReadLines(path).Count();
+                            long currentLine = 0;
 
-                            if (i == 0 && (int)genericList[6] > 0 && (int)genericList[12] > 0)
-                            {
-                                colFields = colFields.Where((el, id) => id == (int)genericList[6] - 1 || id == (int)genericList[12] - 1).ToArray();
-                            }
-
-                            if ((bool)genericList[8 + i])
-                            {
-                                if ((bool)genericList[4 + i])
-                                {
-                                    colFields = PrependNewField(colFields, (string)genericList[10 + i]);
-                                }
-                                else
-                                {
-                                    colFields = PrependNewField(colFields, file_name);
-                                }
-                            }
-
-                            foreach (var (column, j) in colFields.Select((v, j) => (v, j)))
-                            {
-                                DataColumn dc = new DataColumn((bool)genericList[4 + i] ? column : ("COLUMN " + (column_start_number + j + 1)));
-                                dc.AllowDBNull = true;
-                                dt.Columns.Add(dc);
-                            }
-
-                            if (!(bool)genericList[4 + i])
-                            {
-                                dt.Rows.Add(colFields);
-                            }
                             while (!reader.EndOfData)
                             {
                                 if (worker.CancellationPending == true)
@@ -294,31 +256,59 @@ namespace CadCsvExcg
                                 }
                                 else
                                 {
-                                    string[] fieldData = reader.ReadFields();
-
-                                    if (i == 0 && (int)genericList[6] > 0 && (int)genericList[12] > 0)
+                                    string[] fields = reader.ReadFields();
+                                    if (i == 0 && config.columnMatchPosition > 0 && config.columnQuantityPosition > 0)
                                     {
-                                        fieldData = fieldData.Where((el, id) => id == (int)genericList[6] - 1 || id == (int)genericList[12] - 1).ToArray();
+                                        fields = fields.Where((el, j) => j == config.columnMatchPosition - 1 || j == config.columnQuantityPosition - 1).ToArray();
                                     }
-
-                                    if ((bool)genericList[8 + i])
+                                    if (config.usingFilename)
                                     {
-                                        fieldData = PrependNewField(fieldData, file_name);
-                                    }
-
-                                    for (int j = 0; j < fieldData.Length; j++)
-                                    {
-                                        if (fieldData[j] == "")
+                                        string newField;
+                                        if (currentLine == 0 && config.hasHeaderRow)
                                         {
-                                            fieldData[j] = null;
+                                            newField = config.columnFilenameText;
+                                        }
+                                        else
+                                        {
+                                            newField = fileName;
+                                        }
+                                        fields = PrependNewField(fields, newField);
+                                    }
+                                    for (int j = 0; j < fields.Length; j++)
+                                    {
+                                        if (fields[j] == "")
+                                        {
+                                            fields[j] = null;
                                         }
                                     }
-                                    dt.Rows.Add(fieldData);
-
-                                    lineCount++;
-
-                                    int complete = (int)Math.Round((double)(100 * lineCount) / numberOfLines / total + (100 * current - 1) / total);
-
+                                    if (currentLine == 0)
+                                    {
+                                        bool duplicated = false;
+                                        if (config.hasHeaderRow && fields.Length != fields.Distinct().Count())
+                                        {
+                                            MessageBox.Show("Could not set first line as header.", "Duplicated fields");
+                                            duplicated = true;
+                                        }
+                                        foreach (var (field, j) in fields.Select((v, j) => (v, j + 1)))
+                                        {
+                                            DataColumn dc = new DataColumn(config.hasHeaderRow && !duplicated ? field : "Column" + (columnStartNumber + j))
+                                            {
+                                                AllowDBNull = true
+                                            };
+                                            dt.Columns.Add(dc);
+                                        }
+                                        if (!config.hasHeaderRow || duplicated)
+                                        {
+                                            dt.Rows.Add(fields);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        dt.Rows.Add(fields);
+                                    }
+                                    currentLine = reader.LineNumber;
+                                    int complete = (int)Math.Round((double)(100 * currentLine) / totalLines / totalPaths + (100 * currentPath - 1) / totalPaths);
+                                    // only update progressbar if complete is increased
                                     if (this.progressBar1.Value < complete)
                                     {
                                         worker.ReportProgress(complete);
@@ -326,7 +316,6 @@ namespace CadCsvExcg
                                 }
                             }
                         }
-
                         if (i == 0)
                         {
                             dt1.Merge(dt);
@@ -335,25 +324,31 @@ namespace CadCsvExcg
                         {
                             dt2.Merge(dt);
                         }
-                        current++;
+                        currentPath++;
                     }
                 }
-
-                int primary1 = (bool)genericList[8] ? (int)genericList[6] : (int)genericList[6] - 1;
-                int primary2 = (bool)genericList[9] ? (int)genericList[7] : (int)genericList[7] - 1;
+                int primary1, primary2;
+                if (config1.columnQuantityPosition > 0)
+                {
+                    primary1 = config1.usingFilename ? 1 : 0;
+                }
+                else
+                {
+                    primary1 = config1.usingFilename ? config1.columnMatchPosition : config1.columnMatchPosition - 1;
+                }
+                primary2 = config2.usingFilename ? config2.columnMatchPosition : config2.columnMatchPosition - 1;
 
                 // getting all columns
-                dt3.Merge(dt1, false, MissingSchemaAction.AddWithKey);
+                dt3.Merge(dt1, false, MissingSchemaAction.Add);
                 dt3.Merge(dt2, false, MissingSchemaAction.Add);
                 DataTable resultDt = new DataTable();
                 resultDt = dt3.Clone();
                 // joining datatables
+                // posible to remove duplicated rows .GroupBy(x => x[primary1]).Select(y => y.First())
                 var result = from t1 in dt1.AsEnumerable()
-                             join t2 in dt2.AsEnumerable() on new { ID = t1[primary1] } equals new { ID = t2[primary2] }
-                             into tmp
-                             from t3 in tmp.DefaultIfEmpty()
-                             select resultDt.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t3.ItemArray, primary2), true);
-
+                             join t2 in dt2.AsEnumerable()
+                             on new { ID = t1[primary1] } equals new { ID = t2[primary2] }
+                             select resultDt.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, primary2), true);
                 e.Result = result.CopyToDataTable();
             }
             catch (Exception ex)
@@ -362,9 +357,9 @@ namespace CadCsvExcg
                 {
                     backgroundWorker2.CancelAsync();
                 }
-                this.ControlBox = true;
+                // this.ControlBox = true;
                 MessageBox.Show(ex.Message);
-                throw;
+                // throw;
             }
         }
 
@@ -379,11 +374,13 @@ namespace CadCsvExcg
             if (e.Cancelled == true)
             {
                 lblResult.Text = "Canceled!";
+                MessageBox.Show("CANCELED");
 
             }
             else if (e.Error != null)
             {
                 lblResult.Text = "Error: " + e.Error.Message;
+                MessageBox.Show("ERROR");
             }
             else
             {
@@ -399,26 +396,25 @@ namespace CadCsvExcg
                 Encoding encoding;
                 switch ((int)Properties.Settings.Default.encoding)
                 {
-                    case 0:
+                    case (int)Encoder.UTF7:
                         encoding = Encoding.UTF7;
                         break;
-                    case 1:
+                    case (int)Encoder.UTF8:
                         encoding = Encoding.UTF8;
                         break;
-                    case 2:
+                    case (int)Encoder.UTF16LE:
                         encoding = Encoding.Unicode;
                         break;
-                    case 3:
+                    case (int)Encoder.UTF16BE:
                         encoding = Encoding.BigEndianUnicode;
                         break;
-                    case 4:
+                    case (int)Encoder.UTF32:
                         encoding = Encoding.UTF32;
                         break;
                     default:
                         encoding = Encoding.UTF8;
                         break;
                 }
-
 
                 try
                 {
@@ -485,4 +481,36 @@ namespace CadCsvExcg
         }
     }
 
+    public class CSVConfig
+    {
+        public string delimiter;
+        public bool hasHeaderRow;
+        public bool usingFilename;
+        public string columnFilenameText;
+        public int columnMatchPosition;
+        public int columnQuantityPosition;
+
+        public CSVConfig(int configurationNumber)
+        {
+            switch (configurationNumber)
+            {
+                case 1:
+                    this.delimiter = ((Delimiter)Properties.Settings.Default.delimiter1).GetString();
+                    this.hasHeaderRow = !!Properties.Settings.Default.header1;
+                    this.usingFilename = !!Properties.Settings.Default.filename1;
+                    this.columnFilenameText = (string)Properties.Settings.Default.column1;
+                    this.columnMatchPosition = (int)Properties.Settings.Default.id1;
+                    this.columnQuantityPosition = (int)Properties.Settings.Default.quantity;
+                    break;
+                case 2:
+                    this.delimiter = ((Delimiter)Properties.Settings.Default.delimiter2).GetString();
+                    this.hasHeaderRow = !!Properties.Settings.Default.header2;
+                    this.usingFilename = !!Properties.Settings.Default.filename2;
+                    this.columnFilenameText = (string)Properties.Settings.Default.column2;
+                    this.columnMatchPosition = (int)Properties.Settings.Default.id2;
+                    this.columnQuantityPosition = -1;
+                    break;
+            }
+        }
+    }
 }

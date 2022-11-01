@@ -10,7 +10,7 @@ namespace CadCsvExcg
     public partial class FormMain : Form
     {
 
-        private bool initFinished = false;
+        private readonly bool initFinished = false;
         private class ComboItem
         {
             public int ID { get; set; }
@@ -20,35 +20,33 @@ namespace CadCsvExcg
         {
             InitializeComponent();
             // InitializeDatabase();
-
-            var delimiters = new ComboItem[] {
+            ComboItem[] delimiters = new ComboItem[] {
                 new ComboItem{ ID = (int)Delimiter.COMMA, Text = "Comma (,)" },
                 new ComboItem{ ID = (int)Delimiter.TAB, Text = "Tab (    )" },
             };
-
-            var encoders = new ComboItem[]
+            ComboItem[] encoders = new ComboItem[]
             {
-                new ComboItem{ ID = 0, Text = "UTF-7" },
-                new ComboItem{ ID = 1, Text = "UTF-8" },
-                new ComboItem{ ID = 2, Text = "UTF-16LE" },
-                new ComboItem{ ID = 3, Text = "UTF-16BE" },
-                new ComboItem{ ID = 4, Text = "UTF-32" },
+                new ComboItem{ ID = (int)Encoder.UTF7, Text = "UTF-7" },
+                new ComboItem{ ID = (int)Encoder.UTF8, Text = "UTF-8" },
+                new ComboItem{ ID = (int)Encoder.UTF16LE, Text = "UTF-16LE" },
+                new ComboItem{ ID = (int)Encoder.UTF16BE, Text = "UTF-16BE" },
+                new ComboItem{ ID = (int)Encoder.UTF32, Text = "UTF-32" },
             };
 
-            cobDelimiter1.DataSource = delimiters.Clone();
-            cobDelimiter1.DisplayMember = "Text";
-            cobDelimiter1.ValueMember = "ID";
-            cobDelimiter2.DataSource = delimiters.Clone();
-            cobDelimiter2.DisplayMember = "Text";
-            cobDelimiter2.ValueMember = "ID";
-            cobDelimiter3.DataSource = delimiters.Clone();
-            cobDelimiter3.DisplayMember = "Text";
-            cobDelimiter3.ValueMember = "ID";
-            cobEncoding.DataSource = encoders;
-            cobEncoding.DisplayMember = "Text";
-            cobEncoding.ValueMember = "ID";
+            this.cobDelimiter1.DataSource = delimiters.Clone();
+            this.cobDelimiter1.DisplayMember = "Text";
+            this.cobDelimiter1.ValueMember = "ID";
+            this.cobDelimiter2.DataSource = delimiters.Clone();
+            this.cobDelimiter2.DisplayMember = "Text";
+            this.cobDelimiter2.ValueMember = "ID";
+            this.cobDelimiter3.DataSource = delimiters.Clone();
+            this.cobDelimiter3.DisplayMember = "Text";
+            this.cobDelimiter3.ValueMember = "ID";
+            this.cobEncoding.DataSource = encoders;
+            this.cobEncoding.DisplayMember = "Text";
+            this.cobEncoding.ValueMember = "ID";
 
-            LoadConfig();
+            LoadConfigures();
 
             this.txtColumn1.Enabled = this.cbUseFileName1.Checked;
             this.txtColumn2.Enabled = this.cbUseFileName2.Checked;
@@ -58,7 +56,7 @@ namespace CadCsvExcg
             initFinished = true;
         }
 
-        private void LoadConfig()
+        private void LoadConfigures()
         {
             this.cbHeader1.Checked = !!Properties.Settings.Default.header1;
             this.cbHeader2.Checked = !!Properties.Settings.Default.header2;
@@ -135,108 +133,114 @@ namespace CadCsvExcg
 
         private void btnAdd1_Click(object sender, EventArgs e)
         {
-            AddFile(lvCad);
+            AddFile(this.lvCad);
         }
 
         private void btnAdd2_Click(object sender, EventArgs e)
         {
-            AddFile(lvBom);
+            AddFile(this.lvBom);
         }
 
         private void AddFile(ListView listView)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "CSV Files (*.csv)|*.csv";
-            dialog.Multiselect = true;
-            if (dialog.ShowDialog() == DialogResult.OK)
+            try
             {
-                foreach (var fileName in dialog.FileNames)
-                {
-                    try
+                using (OpenFileDialog dialog = new OpenFileDialog()) {
+                    dialog.Filter = "CSV Files (*.csv)|*.csv";
+                    dialog.Multiselect = true;
+                    if (dialog.ShowDialog() == DialogResult.OK)
                     {
-                        if (listView.FindItemWithText(fileName) == null)
+                        foreach (var fileName in dialog.FileNames)
                         {
-                            ListViewItem item;
-                            string[] arr = new string[3];
-                            arr[0] = System.IO.Path.GetFileName(fileName);
-                            arr[1] = fileName;
-                            arr[2] = (new FileInfo(fileName).Length / 1024).ToString() + " KB";
-                            item = new ListViewItem(arr);
-                            listView.Items.Add(item);
+                            if (listView.FindItemWithText(fileName) == null)
+                            {
+                                ListViewItem item;
+                                string[] arr = new string[3];
+                                arr[0] = System.IO.Path.GetFileName(fileName);
+                                arr[1] = fileName;
+                                arr[2] = (new FileInfo(fileName).Length / 1024).ToString() + " KB";
+                                item = new ListViewItem(arr);
+                                listView.Items.Add(item);
+                            }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
                 }
-                ResizeListViewColumnsWidth();
             }
-            CheckCombinable();
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                ResizeListViewColumnsWidth(listView);
+                CheckCombinable();
+            }
         }
 
         private void RemoveSelectedItems(ListView listView)
         {
-            foreach (ListViewItem item in listView.SelectedItems)
+            if (listView.SelectedItems.Count > 0)
             {
-                listView.Items.Remove(item);
+                foreach (ListViewItem item in listView.SelectedItems)
+                {
+                    listView.Items.Remove(item);
+                }
+                ResizeListViewColumnsWidth(listView);
+                CheckCombinable();
             }
-            CheckCombinable();
         }
 
-        private void ResizeListViewColumnsWidth()
+        private void ResizeListViewColumnsWidth(ListView listView)
         {
-            lvCad.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-            lvCad.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-            lvBom.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-            lvBom.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+            listView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+            listView.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
         private void btnRemove1_Click(object sender, EventArgs e)
         {
-            RemoveSelectedItems(lvCad);
+            RemoveSelectedItems(this.lvCad);
         }
 
         private void btnRemove2_Click(object sender, EventArgs e)
         {
-            RemoveSelectedItems(lvBom);
+            RemoveSelectedItems(this.lvBom);
         }
 
         private void lvCad_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnRemove1.Enabled = !!(lvCad.SelectedItems.Count > 0);
-            btnPreview1.Enabled = !!(lvCad.SelectedItems.Count == 1);
-        }
-
-        private void CheckCombinable()
-        {
-            grpSettings.Enabled = lvCad.Items.Count > 0 && lvBom.Items.Count > 0;
-            btnStart.Enabled = lvCad.Items.Count > 0 && lvBom.Items.Count > 0;
+            this.btnRemove1.Enabled = !!(this.lvCad.SelectedItems.Count > 0);
+            this.btnPreview1.Enabled = !!(this.lvCad.SelectedItems.Count == 1);
         }
 
         private void lvBom_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnRemove2.Enabled = !!(lvBom.SelectedItems.Count > 0);
-            btnPreview2.Enabled = !!(lvBom.SelectedItems.Count == 1);
+            this.btnRemove2.Enabled = !!(this.lvBom.SelectedItems.Count > 0);
+            this.btnPreview2.Enabled = !!(this.lvBom.SelectedItems.Count == 1);
+        }
+
+        private void CheckCombinable()
+        {
+            this.grpSettings.Enabled = this.lvCad.Items.Count > 0 && this.lvBom.Items.Count > 0;
+            this.btnStart.Enabled = this.lvCad.Items.Count > 0 && this.lvBom.Items.Count > 0;
         }
 
         private void btnSelectDir_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-
-            if (dialog.ShowDialog() == DialogResult.OK)
+            using (FolderBrowserDialog dialog = new FolderBrowserDialog())
             {
-                llblOutputDir.Text = dialog.SelectedPath;
-                saveConfig();
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    this.llblOutputDir.Text = dialog.SelectedPath;
+                    SaveConfigure();
+                }
             }
-
         }
 
         private void llblOutputDir_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
             {
-                var fullPath = System.IO.Path.GetFullPath(llblOutputDir.Text);
+                string fullPath = System.IO.Path.GetFullPath((string)this.llblOutputDir.Text);
                 Process.Start("explorer.exe", @"" + fullPath + "");
             }
             catch (Exception ex)
@@ -249,7 +253,7 @@ namespace CadCsvExcg
         {
             if (lvCad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, 0, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, txtColumn1.Text, true, (int)numQuantity.Value);
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, 1);
             }
         }
 
@@ -257,7 +261,7 @@ namespace CadCsvExcg
         {
             if (lvBom.SelectedItems.Count == 1)
             {
-                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, 0, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked, txtColumn2.Text);
+                Preview(lvBom.SelectedItems[0].SubItems[1].Text, 2);
             }
         }
 
@@ -265,7 +269,7 @@ namespace CadCsvExcg
         {
             if (lvCad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter1.SelectedValue, 0, cbHeader1.Checked, (int)numCad.Value, cbUseFileName1.Checked, txtColumn1.Text, true, (int)numQuantity.Value);
+                Preview(lvCad.SelectedItems[0].SubItems[1].Text, 1);
             }
         }
 
@@ -273,42 +277,26 @@ namespace CadCsvExcg
         {
             if (lvBom.SelectedItems.Count == 1)
             {
-                Preview(lvBom.SelectedItems[0].SubItems[1].Text, (Delimiter)cobDelimiter2.SelectedValue, 0, cbHeader2.Checked, (int)numBom.Value, cbUseFileName2.Checked, txtColumn2.Text);
+                Preview(lvBom.SelectedItems[0].SubItems[1].Text, 2);
             }
         }
-        private void Preview(string path, Delimiter delimiter, int columnNameStartNum, bool header, int id = 0, bool append = false, string fileColumnName = "FILENAME", bool isCad = false, int qpos = 0)
+        private void Preview(string path, int configurationNumber)
         {
             Loading(true);
             using (FormProcess frm = new FormProcess())
             {
+                bool isCad = configurationNumber == 1;
                 List<object> args = new List<object>
                 {
                     path,
-                    delimiter.GetString(),
-                    header,
-                    columnNameStartNum,
-                    id,
-                    append,
-                    fileColumnName,
-                    isCad,
-                    qpos,
+                    configurationNumber,
+                    isCad
                 };
                 frm.Preview(args);
                 frm.ShowDialog();
             }
             Loading(false);
-            /*  if (File.Exists(path))
-              {
-                  using (FormPreview frm = new FormPreview())
-                  {
-                      Loading(true);
-                      frm.LoadCSV(path, delimiter.GetString(), columnNameStartNum, header, id, append, fileColumnName);
-                      Loading(false);
-                      frm.ShowDialog();
-                  }
-              }*/
         }
-
 
         private void btnStart_Click(object sender, EventArgs e)
         {
@@ -316,45 +304,20 @@ namespace CadCsvExcg
             {
                 List<string> paths1 = new List<string>();
                 List<string> paths2 = new List<string>();
-                string delimiter1 = ((Delimiter)cobDelimiter1.SelectedValue).GetString();
-                string delimiter2 = ((Delimiter)cobDelimiter2.SelectedValue).GetString();
-                bool header1 = cbHeader1.Checked;
-                bool header2 = cbHeader2.Checked;
-                int primary1 = (int)numCad.Value;
-                int primary2 = (int)numBom.Value;
-                bool extra1 = cbUseFileName1.Checked;
-                bool extra2 = cbUseFileName2.Checked;
-                string extraName1 = txtColumn1.Text;
-                string extraName2 = txtColumn2.Text;
-                int quantity = (int)numQuantity.Value;
-
                 foreach (ListViewItem item in lvCad.Items)
                 {
                     string file = item.SubItems[1].Text;
                     paths1.Add(file);
                 }
-
                 foreach (ListViewItem item in lvBom.Items)
                 {
                     string file = item.SubItems[1].Text;
                     paths2.Add(file);
                 }
-
                 List<object> args = new List<object>
                     {
                         paths1.ToArray<string>(),
                         paths2.ToArray<string>(),
-                        delimiter1,
-                        delimiter2,
-                        header1,
-                        header2,
-                        primary1,
-                        primary2,
-                        extra1,
-                        extra2,
-                        extraName1,
-                        extraName2,
-                        quantity
                     };
 
                 frm.Combine(args);
@@ -364,20 +327,20 @@ namespace CadCsvExcg
 
         private void cobDelimiter1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void cobDelimiter2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void cbHeader1_CheckedChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
-        private void saveConfig()
+        private void SaveConfigure()
         {
             if (initFinished)
             {
@@ -401,45 +364,45 @@ namespace CadCsvExcg
 
         private void cbUseFileName1_CheckedChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
             txtColumn1.Enabled = this.cbUseFileName1.Checked;
 
         }
 
         private void cbHeader2_CheckedChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void cbUseFileName2_CheckedChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
             txtColumn2.Enabled = this.cbUseFileName2.Checked;
         }
 
         private void numCad_ValueChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void numBom_ValueChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void txtColumn1_Leave(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void txtColumn2_Leave(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void cobEncoding_SelectedIndexChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void Loading(bool value)
@@ -460,12 +423,12 @@ namespace CadCsvExcg
 
         private void cobDelimiter3_SelectedIndexChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
 
         private void numQuantity_ValueChanged(object sender, EventArgs e)
         {
-            saveConfig();
+            SaveConfigure();
         }
     }
 }

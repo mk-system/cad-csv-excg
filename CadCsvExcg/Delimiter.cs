@@ -2,8 +2,8 @@
 {
     public enum Delimiter
     {
-        COMMA = 1,
-        TAB = 2,
+        COMMA = 0,
+        TAB = 1,
     }
 
     static class DelimiterMethods
