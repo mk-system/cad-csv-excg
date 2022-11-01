@@ -330,7 +330,13 @@ namespace CadCsvExcg
                 int primary1, primary2;
                 if (config1.columnQuantityPosition > 0)
                 {
-                    primary1 = config1.usingFilename ? 1 : 0;
+                    if (config1.columnQuantityPosition > config1.columnMatchPosition)
+                    {
+                        primary1 = config1.usingFilename ? 1 : 0;
+                    } else
+                    {
+                        primary1 = config1.usingFilename ? 2 : 1;
+                    }
                 }
                 else
                 {
