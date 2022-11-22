@@ -51,6 +51,7 @@ namespace CadCsvExcg
             // 
             // button1
             // 
+            this.button1.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.button1.Location = new System.Drawing.Point(197, 48);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
@@ -83,7 +84,9 @@ namespace CadCsvExcg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.button1;
             this.ClientSize = new System.Drawing.Size(284, 83);
+            this.ControlBox = false;
             this.Controls.Add(this.lblResult);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.progressBar1);
@@ -95,7 +98,6 @@ namespace CadCsvExcg
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Processing";
             this.ResumeLayout(false);
 
         }

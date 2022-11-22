@@ -25,169 +25,325 @@ namespace CadCsvExcg.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool header1 {
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int cad_type {
             get {
-                return ((bool)(this["header1"]));
+                return ((int)(this["cad_type"]));
             }
             set {
-                this["header1"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool header2 {
-            get {
-                return ((bool)(this["header2"]));
-            }
-            set {
-                this["header2"] = value;
+                this["cad_type"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool filename1 {
+        public bool cad_header1 {
             get {
-                return ((bool)(this["filename1"]));
+                return ((bool)(this["cad_header1"]));
             }
             set {
-                this["filename1"] = value;
+                this["cad_header1"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool filename2 {
+        public bool cad_header2 {
             get {
-                return ((bool)(this["filename2"]));
+                return ((bool)(this["cad_header2"]));
             }
             set {
-                this["filename2"] = value;
+                this["cad_header2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool cad_header3 {
+            get {
+                return ((bool)(this["cad_header3"]));
+            }
+            set {
+                this["cad_header3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool cad_filename1 {
+            get {
+                return ((bool)(this["cad_filename1"]));
+            }
+            set {
+                this["cad_filename1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool cad_filename2 {
+            get {
+                return ((bool)(this["cad_filename2"]));
+            }
+            set {
+                this["cad_filename2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool cad_filename3 {
+            get {
+                return ((bool)(this["cad_filename3"]));
+            }
+            set {
+                this["cad_filename3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME")]
+        public string cad_file_column_text1 {
+            get {
+                return ((string)(this["cad_file_column_text1"]));
+            }
+            set {
+                this["cad_file_column_text1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME")]
+        public string cad_file_column_text2 {
+            get {
+                return ((string)(this["cad_file_column_text2"]));
+            }
+            set {
+                this["cad_file_column_text2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME")]
+        public string cad_file_column_text3 {
+            get {
+                return ((string)(this["cad_file_column_text3"]));
+            }
+            set {
+                this["cad_file_column_text3"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int delimiter1 {
+        public int cad_delimiter1 {
             get {
-                return ((int)(this["delimiter1"]));
+                return ((int)(this["cad_delimiter1"]));
             }
             set {
-                this["delimiter1"] = value;
+                this["cad_delimiter1"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int delimiter2 {
+        public int cad_delimiter2 {
             get {
-                return ((int)(this["delimiter2"]));
+                return ((int)(this["cad_delimiter2"]));
             }
             set {
-                this["delimiter2"] = value;
+                this["cad_delimiter2"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int id1 {
+        public int cad_delimiter3 {
             get {
-                return ((int)(this["id1"]));
+                return ((int)(this["cad_delimiter3"]));
             }
             set {
-                this["id1"] = value;
+                this["cad_delimiter3"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int id2 {
+        public int cad_id_pos1 {
             get {
-                return ((int)(this["id2"]));
+                return ((int)(this["cad_id_pos1"]));
             }
             set {
-                this["id2"] = value;
+                this["cad_id_pos1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int cad_id_pos2 {
+            get {
+                return ((int)(this["cad_id_pos2"]));
+            }
+            set {
+                this["cad_id_pos2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int cad_id_pos3 {
+            get {
+                return ((int)(this["cad_id_pos3"]));
+            }
+            set {
+                this["cad_id_pos3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int cad_quantity_pos1 {
+            get {
+                return ((int)(this["cad_quantity_pos1"]));
+            }
+            set {
+                this["cad_quantity_pos1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int cad_quantity_pos2 {
+            get {
+                return ((int)(this["cad_quantity_pos2"]));
+            }
+            set {
+                this["cad_quantity_pos2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int cad_quantity_pos3 {
+            get {
+                return ((int)(this["cad_quantity_pos3"]));
+            }
+            set {
+                this["cad_quantity_pos3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool bom_header {
+            get {
+                return ((bool)(this["bom_header"]));
+            }
+            set {
+                this["bom_header"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int bom_delimiter {
+            get {
+                return ((int)(this["bom_delimiter"]));
+            }
+            set {
+                this["bom_delimiter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int bom_id_pos {
+            get {
+                return ((int)(this["bom_id_pos"]));
+            }
+            set {
+                this["bom_id_pos"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("C:\\\\csv_output")]
-        public string output {
+        public string output_dir {
             get {
-                return ((string)(this["output"]));
+                return ((string)(this["output_dir"]));
             }
             set {
-                this["output"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME 1")]
-        public string column1 {
-            get {
-                return ((string)(this["column1"]));
-            }
-            set {
-                this["column1"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME 2")]
-        public string column2 {
-            get {
-                return ((string)(this["column2"]));
-            }
-            set {
-                this["column2"] = value;
+                this["output_dir"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int encoding {
+        public int output_encoding {
             get {
-                return ((int)(this["encoding"]));
+                return ((int)(this["output_encoding"]));
             }
             set {
-                this["encoding"] = value;
+                this["output_encoding"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int delimiter3 {
+        public int output_delimiter {
             get {
-                return ((int)(this["delimiter3"]));
+                return ((int)(this["output_delimiter"]));
             }
             set {
-                this["delimiter3"] = value;
+                this["output_delimiter"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool output_exclude {
+            get {
+                return ((bool)(this["output_exclude"]));
+            }
+            set {
+                this["output_exclude"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int quantity {
+        public int output_repeat {
             get {
-                return ((int)(this["quantity"]));
+                return ((int)(this["output_repeat"]));
             }
             set {
-                this["quantity"] = value;
+                this["output_repeat"] = value;
             }
         }
     }

@@ -7,22 +7,21 @@ using System.Collections.Generic;
 
 namespace CadCsvExcg
 {
-    public partial class FormMain : Form
+    public partial class frmMain : Form
     {
-
-        private readonly bool initFinished = false;
+        private static bool initializeFinished = false;
+        private bool isLoadingConfigure = false;
         private class ComboItem
         {
             public int ID { get; set; }
             public string Text { get; set; }
         }
-        public FormMain()
+        public frmMain()
         {
             InitializeComponent();
-            // InitializeDatabase();
             ComboItem[] delimiters = new ComboItem[] {
-                new ComboItem{ ID = (int)Delimiter.COMMA, Text = "Comma (,)" },
-                new ComboItem{ ID = (int)Delimiter.TAB, Text = "Tab (    )" },
+                new ComboItem{ ID = (int)Delimiter.COMMA, Text = "Comma ( , )" },
+                new ComboItem{ ID = (int)Delimiter.TAB, Text = "Tab (   )" },
             };
             ComboItem[] encoders = new ComboItem[]
             {
@@ -32,81 +31,33 @@ namespace CadCsvExcg
                 new ComboItem{ ID = (int)Encoder.UTF16BE, Text = "UTF-16BE" },
                 new ComboItem{ ID = (int)Encoder.UTF32, Text = "UTF-32" },
             };
-
-            this.cobDelimiter1.DataSource = delimiters.Clone();
-            this.cobDelimiter1.DisplayMember = "Text";
-            this.cobDelimiter1.ValueMember = "ID";
-            this.cobDelimiter2.DataSource = delimiters.Clone();
-            this.cobDelimiter2.DisplayMember = "Text";
-            this.cobDelimiter2.ValueMember = "ID";
-            this.cobDelimiter3.DataSource = delimiters.Clone();
-            this.cobDelimiter3.DisplayMember = "Text";
-            this.cobDelimiter3.ValueMember = "ID";
-            this.cobEncoding.DataSource = encoders;
-            this.cobEncoding.DisplayMember = "Text";
-            this.cobEncoding.ValueMember = "ID";
-
-            LoadConfigures();
-
-            this.txtColumn1.Enabled = this.cbUseFileName1.Checked;
-            this.txtColumn2.Enabled = this.cbUseFileName2.Checked;
-
-            CheckCombinable();
-
-            initFinished = true;
-        }
-
-        private void LoadConfigures()
-        {
-            this.cbHeader1.Checked = !!Properties.Settings.Default.header1;
-            this.cbHeader2.Checked = !!Properties.Settings.Default.header2;
-            this.cbUseFileName1.Checked = !!Properties.Settings.Default.filename1;
-            this.cbUseFileName2.Checked = !!Properties.Settings.Default.filename2;
-            this.cobDelimiter1.SelectedIndex = (int)Properties.Settings.Default.delimiter1;
-            this.cobDelimiter2.SelectedIndex = (int)Properties.Settings.Default.delimiter2;
-            this.cobDelimiter3.SelectedIndex = (int)Properties.Settings.Default.delimiter3;
-            this.numCad.Value = (int)Properties.Settings.Default.id1;
-            this.numBom.Value = (int)Properties.Settings.Default.id2;
-            this.txtColumn1.Text = Properties.Settings.Default.column1;
-            this.txtColumn2.Text = Properties.Settings.Default.column2;
-            this.llblOutputDir.Text = Properties.Settings.Default.output;
-            this.cobEncoding.SelectedIndex = Properties.Settings.Default.encoding;
-            this.numQuantity.Value = (int)Properties.Settings.Default.quantity;
-        }
-
-
-        /*static void InitializeDatabase()
-        {
-            using (var connection = new SQLiteConnection("Data Source=database.db;New=True;Compress=True;"))
+            ComboItem[] cadList = new ComboItem[]
             {
-                try
-                {
-                    connection.Open();
-                    var command = new SQLiteCommand(connection);
-
-                    // Clearing exists tables
-                    command.CommandText = "DROP TABLE IF EXISTS table1";
-                    command.ExecuteNonQuery();
-                    command.CommandText = "DROP TABLE IF EXISTS table2";
-                    command.ExecuteNonQuery();
-
-                    // Creating tables for storing data
-                    command.CommandText = @"CREATE TABLE table1(id INTEGER PRIMARY KEY)";
-                    command.ExecuteNonQuery();
-                    command.CommandText = @"CREATE TABLE table2(id INTEGER PRIMARY KEY)";
-                    command.ExecuteNonQuery();
-
-                    SQLiteDataAdapter da = new SQLiteDataAdapter(command);
-                    // da.Fill(dataTable);
-
-                    connection.Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
-        }*/
+                new ComboItem{ ID = 0, Text = "Unidraf" },
+                new ComboItem{ ID = 1, Text = "EPLAN" },
+                new ComboItem{ ID = 2, Text = "E3" },
+            };
+            this.ddl_cad_delimiter.DataSource = delimiters.Clone();
+            this.ddl_cad_delimiter.DisplayMember = "Text";
+            this.ddl_cad_delimiter.ValueMember = "ID";
+            this.ddl_bom_delimiter.DataSource = delimiters.Clone();
+            this.ddl_bom_delimiter.DisplayMember = "Text";
+            this.ddl_bom_delimiter.ValueMember = "ID";
+            this.ddl_output_delimiter.DataSource = delimiters.Clone();
+            this.ddl_output_delimiter.DisplayMember = "Text";
+            this.ddl_output_delimiter.ValueMember = "ID";
+            this.ddl_output_encoding.DataSource = encoders;
+            this.ddl_output_encoding.DisplayMember = "Text";
+            this.ddl_output_encoding.ValueMember = "ID";
+            this.ddl_cad_type.DataSource = cadList;
+            this.ddl_cad_type.DisplayMember = "Text";
+            this.ddl_cad_type.ValueMember = "ID";
+            
+            LoadConfigures();
+            this.txt_cad_file_column.Enabled = this.cb_cad_filename.Checked;
+            CheckCombinable();
+            initializeFinished = true;
+        }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -133,19 +84,20 @@ namespace CadCsvExcg
 
         private void btnAdd1_Click(object sender, EventArgs e)
         {
-            AddFile(this.lvCad);
+            AddFile(this.lv_cad);
         }
 
         private void btnAdd2_Click(object sender, EventArgs e)
         {
-            AddFile(this.lvBom);
+            AddFile(this.lv_bom);
         }
 
         private void AddFile(ListView listView)
         {
             try
             {
-                using (OpenFileDialog dialog = new OpenFileDialog()) {
+                using (OpenFileDialog dialog = new OpenFileDialog())
+                {
                     dialog.Filter = "CSV Files (*.csv)|*.csv";
                     dialog.Multiselect = true;
                     if (dialog.ShowDialog() == DialogResult.OK)
@@ -198,30 +150,29 @@ namespace CadCsvExcg
 
         private void btnRemove1_Click(object sender, EventArgs e)
         {
-            RemoveSelectedItems(this.lvCad);
+            RemoveSelectedItems(this.lv_cad);
         }
 
         private void btnRemove2_Click(object sender, EventArgs e)
         {
-            RemoveSelectedItems(this.lvBom);
+            RemoveSelectedItems(this.lv_bom);
         }
 
         private void lvCad_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.btnRemove1.Enabled = !!(this.lvCad.SelectedItems.Count > 0);
-            this.btnPreview1.Enabled = !!(this.lvCad.SelectedItems.Count == 1);
+            this.btn_remove1.Enabled = !!(this.lv_cad.SelectedItems.Count > 0);
+            this.btn_preview1.Enabled = !!(this.lv_cad.SelectedItems.Count == 1);
         }
 
         private void lvBom_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.btnRemove2.Enabled = !!(this.lvBom.SelectedItems.Count > 0);
-            this.btnPreview2.Enabled = !!(this.lvBom.SelectedItems.Count == 1);
+            this.btn_remove2.Enabled = !!(this.lv_bom.SelectedItems.Count > 0);
+            this.btn_preview2.Enabled = !!(this.lv_bom.SelectedItems.Count == 1);
         }
 
         private void CheckCombinable()
         {
-            this.grpSettings.Enabled = this.lvCad.Items.Count > 0 && this.lvBom.Items.Count > 0;
-            this.btnStart.Enabled = this.lvCad.Items.Count > 0 && this.lvBom.Items.Count > 0;
+            this.btn_start.Enabled = this.lv_cad.Items.Count > 0 && this.lv_bom.Items.Count > 0;
         }
 
         private void btnSelectDir_Click(object sender, EventArgs e)
@@ -230,8 +181,8 @@ namespace CadCsvExcg
             {
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    this.llblOutputDir.Text = dialog.SelectedPath;
-                    SaveConfigure();
+                    this.lbtn_output_dir.Text = dialog.SelectedPath;
+                    SaveConfigure(sender, e);
                 }
             }
         }
@@ -240,7 +191,7 @@ namespace CadCsvExcg
         {
             try
             {
-                string fullPath = System.IO.Path.GetFullPath((string)this.llblOutputDir.Text);
+                string fullPath = System.IO.Path.GetFullPath((string)this.lbtn_output_dir.Text);
                 Process.Start("explorer.exe", @"" + fullPath + "");
             }
             catch (Exception ex)
@@ -251,33 +202,33 @@ namespace CadCsvExcg
 
         private void btnPreview1_Click(object sender, EventArgs e)
         {
-            if (lvCad.SelectedItems.Count == 1)
+            if (lv_cad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, 1);
+                Preview(lv_cad.SelectedItems[0].SubItems[1].Text, 1);
             }
         }
 
         private void btnPreview2_Click(object sender, EventArgs e)
         {
-            if (lvBom.SelectedItems.Count == 1)
+            if (lv_bom.SelectedItems.Count == 1)
             {
-                Preview(lvBom.SelectedItems[0].SubItems[1].Text, 2);
+                Preview(lv_bom.SelectedItems[0].SubItems[1].Text, 2);
             }
         }
 
         private void lvCad_DoubleClick(object sender, EventArgs e)
         {
-            if (lvCad.SelectedItems.Count == 1)
+            if (lv_cad.SelectedItems.Count == 1)
             {
-                Preview(lvCad.SelectedItems[0].SubItems[1].Text, 1);
+                Preview(lv_cad.SelectedItems[0].SubItems[1].Text, 1);
             }
         }
 
         private void lvBom_DoubleClick(object sender, EventArgs e)
         {
-            if (lvBom.SelectedItems.Count == 1)
+            if (lv_bom.SelectedItems.Count == 1)
             {
-                Preview(lvBom.SelectedItems[0].SubItems[1].Text, 2);
+                Preview(lv_bom.SelectedItems[0].SubItems[1].Text, 2);
             }
         }
         private void Preview(string path, int configurationNumber)
@@ -304,105 +255,147 @@ namespace CadCsvExcg
             {
                 List<string> paths1 = new List<string>();
                 List<string> paths2 = new List<string>();
-                foreach (ListViewItem item in lvCad.Items)
+                foreach (ListViewItem item in lv_cad.Items)
                 {
                     string file = item.SubItems[1].Text;
                     paths1.Add(file);
                 }
-                foreach (ListViewItem item in lvBom.Items)
+                if (!this.cb_output_exclude.Checked)
                 {
-                    string file = item.SubItems[1].Text;
-                    paths2.Add(file);
+                    foreach (ListViewItem item in lv_bom.Items)
+                    {
+                        string file = item.SubItems[1].Text;
+                        paths2.Add(file);
+                    }
                 }
                 List<object> args = new List<object>
-                    {
-                        paths1.ToArray<string>(),
-                        paths2.ToArray<string>(),
-                    };
-
+                {
+                    paths1.ToArray<string>(),
+                    paths2.ToArray<string>(),
+                };
                 frm.Combine(args);
                 frm.ShowDialog();
             }
         }
 
-        private void cobDelimiter1_SelectedIndexChanged(object sender, EventArgs e)
+        private void LoadConfigures(bool cadOnly = false)
         {
-            SaveConfigure();
-        }
-
-        private void cobDelimiter2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
-
-        private void cbHeader1_CheckedChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
-
-        private void SaveConfigure()
-        {
-            if (initFinished)
+            isLoadingConfigure = true;
+            // this.ddl_cad_type.SelectedIndex = (int)Properties.Settings.Default.cad_type;
+            switch (this.ddl_cad_type.SelectedIndex)
             {
-                Properties.Settings.Default.header1 = !!cbHeader1.Checked;
-                Properties.Settings.Default.header2 = !!cbHeader2.Checked;
-                Properties.Settings.Default.filename1 = !!cbUseFileName1.Checked;
-                Properties.Settings.Default.filename2 = !!cbUseFileName2.Checked;
-                Properties.Settings.Default.delimiter1 = (int)cobDelimiter1.SelectedIndex;
-                Properties.Settings.Default.delimiter2 = (int)cobDelimiter2.SelectedIndex;
-                Properties.Settings.Default.delimiter3 = (int)cobDelimiter3.SelectedIndex;
-                Properties.Settings.Default.id1 = (int)numCad.Value;
-                Properties.Settings.Default.id2 = (int)numBom.Value;
-                Properties.Settings.Default.column1 = txtColumn1.Text;
-                Properties.Settings.Default.column2 = txtColumn2.Text;
-                Properties.Settings.Default.output = llblOutputDir.Text;
-                Properties.Settings.Default.encoding = cobEncoding.SelectedIndex;
-                Properties.Settings.Default.quantity = (int)numQuantity.Value;
+                case 0:
+                    this.cb_cad_header.Checked = !!Properties.Settings.Default.cad_header1;
+                    this.cb_cad_filename.Checked = !!Properties.Settings.Default.cad_filename1;
+                    this.txt_cad_file_column.Text = Properties.Settings.Default.cad_file_column_text1;
+                    this.ddl_cad_delimiter.SelectedIndex = (int)Properties.Settings.Default.cad_delimiter1;
+                    this.num_cad_id_pos.Value = (int)Properties.Settings.Default.cad_id_pos1;
+                    this.num_cad_quantity_pos.Value = (int)Properties.Settings.Default.cad_quantity_pos1;
+                    break;
+                case 1:
+                    this.cb_cad_header.Checked = !!Properties.Settings.Default.cad_header2;
+                    this.cb_cad_filename.Checked = !!Properties.Settings.Default.cad_filename2;
+                    this.txt_cad_file_column.Text = Properties.Settings.Default.cad_file_column_text2;
+                    this.ddl_cad_delimiter.SelectedIndex = (int)Properties.Settings.Default.cad_delimiter2;
+                    this.num_cad_id_pos.Value = (int)Properties.Settings.Default.cad_id_pos2;
+                    this.num_cad_quantity_pos.Value = (int)Properties.Settings.Default.cad_quantity_pos2;
+                    break;
+                case 2:
+                    this.cb_cad_header.Checked = !!Properties.Settings.Default.cad_header3;
+                    this.cb_cad_filename.Checked = !!Properties.Settings.Default.cad_filename3;
+                    this.txt_cad_file_column.Text = Properties.Settings.Default.cad_file_column_text3;
+                    this.ddl_cad_delimiter.SelectedIndex = (int)Properties.Settings.Default.cad_delimiter3;
+                    this.num_cad_id_pos.Value = (int)Properties.Settings.Default.cad_id_pos3;
+                    this.num_cad_quantity_pos.Value = (int)Properties.Settings.Default.cad_quantity_pos3;
+                    break;
+            }
+            if (!cadOnly)
+            {
+                this.cb_bom_header.Checked = !!Properties.Settings.Default.bom_header;
+                this.ddl_bom_delimiter.SelectedIndex = (int)Properties.Settings.Default.bom_delimiter;
+                this.num_bom_id_pos.Value = (int)Properties.Settings.Default.bom_id_pos;
+                // OUTPUT
+                this.lbtn_output_dir.Text = Properties.Settings.Default.output_dir;
+                this.ddl_output_encoding.SelectedIndex = (int)Properties.Settings.Default.output_encoding;
+                this.ddl_output_delimiter.SelectedIndex = (int)Properties.Settings.Default.output_delimiter;
+                this.cb_output_exclude.Checked = !!Properties.Settings.Default.output_exclude;
+                switch (Properties.Settings.Default.output_repeat)
+                {
+                    case 0:
+                        rdo_output_option1.Checked = true;
+                        rdo_output_option2.Checked = false;
+                        rdo_output_option3.Checked = false;
+                        break;
+                    case 1:
+                        rdo_output_option1.Checked = false;
+                        rdo_output_option2.Checked = true;
+                        rdo_output_option3.Checked = false;
+                        break;
+                    case 2:
+                        rdo_output_option1.Checked = false;
+                        rdo_output_option2.Checked = false;
+                        rdo_output_option3.Checked = true;
+                        break;
+                }
+            }
+            
+            isLoadingConfigure = false;
+        }
+
+        private void SaveConfigure(object sender, EventArgs e)
+        {
+            this.txt_cad_file_column.Enabled = this.cb_cad_filename.Checked;
+            if (initializeFinished && !isLoadingConfigure)
+            {
+                switch ((int)this.ddl_cad_type.SelectedIndex)
+                {
+                    case 0:
+                        Properties.Settings.Default.cad_header1 = !!this.cb_cad_header.Checked;
+                        Properties.Settings.Default.cad_filename1 = !!this.cb_cad_filename.Checked;
+                        Properties.Settings.Default.cad_file_column_text1 = this.txt_cad_file_column.Text;
+                        Properties.Settings.Default.cad_id_pos1 = (int)this.num_cad_id_pos.Value;
+                        Properties.Settings.Default.cad_quantity_pos1 = (int)this.num_cad_quantity_pos.Value;
+                        Properties.Settings.Default.cad_delimiter1 = (int)this.ddl_cad_delimiter.SelectedIndex;
+                        break;
+                    case 1:
+                        Properties.Settings.Default.cad_header2 = !!this.cb_cad_header.Checked;
+                        Properties.Settings.Default.cad_filename2 = !!this.cb_cad_filename.Checked;
+                        Properties.Settings.Default.cad_file_column_text2 = this.txt_cad_file_column.Text;
+                        Properties.Settings.Default.cad_id_pos2 = (int)this.num_cad_id_pos.Value;
+                        Properties.Settings.Default.cad_quantity_pos2 = (int)this.num_cad_quantity_pos.Value;
+                        Properties.Settings.Default.cad_delimiter2 = (int)this.ddl_cad_delimiter.SelectedIndex;
+                        break;
+                    case 2:
+                        Properties.Settings.Default.cad_header3 = !!this.cb_cad_header.Checked;
+                        Properties.Settings.Default.cad_filename3 = !!this.cb_cad_filename.Checked;
+                        Properties.Settings.Default.cad_file_column_text3 = this.txt_cad_file_column.Text;
+                        Properties.Settings.Default.cad_id_pos3 = (int)this.num_cad_id_pos.Value;
+                        Properties.Settings.Default.cad_quantity_pos3 = (int)this.num_cad_quantity_pos.Value;
+                        Properties.Settings.Default.cad_delimiter3 = (int)this.ddl_cad_delimiter.SelectedIndex;
+                        break;
+                }
+
+                Properties.Settings.Default.bom_header = !!this.cb_bom_header.Checked;
+                Properties.Settings.Default.bom_delimiter = (int)this.ddl_bom_delimiter.SelectedIndex;
+                Properties.Settings.Default.bom_id_pos = (int)this.num_bom_id_pos.Value;
+
+                Properties.Settings.Default.output_dir = this.lbtn_output_dir.Text;
+                Properties.Settings.Default.output_encoding = (int)this.ddl_output_encoding.SelectedIndex;
+                Properties.Settings.Default.output_delimiter = (int)this.ddl_output_delimiter.SelectedIndex;
+                Properties.Settings.Default.output_exclude = !!this.cb_output_exclude.Checked;
+                if (rdo_output_option1.Checked)
+                {
+                    Properties.Settings.Default.output_repeat = 0;
+                } else if (rdo_output_option2.Checked)
+                {
+                    Properties.Settings.Default.output_repeat = 1;
+                } else if (rdo_output_option3.Checked)
+                {
+                    Properties.Settings.Default.output_repeat = 2;
+                }
+                // Properties.Settings.Default.cad_type = (int)this.ddl_cad_type.SelectedIndex;
                 Properties.Settings.Default.Save();
             }
-        }
-
-        private void cbUseFileName1_CheckedChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-            txtColumn1.Enabled = this.cbUseFileName1.Checked;
-
-        }
-
-        private void cbHeader2_CheckedChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
-
-        private void cbUseFileName2_CheckedChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-            txtColumn2.Enabled = this.cbUseFileName2.Checked;
-        }
-
-        private void numCad_ValueChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
-
-        private void numBom_ValueChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
-
-        private void txtColumn1_Leave(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
-
-        private void txtColumn2_Leave(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
-
-        private void cobEncoding_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
         }
 
         private void Loading(bool value)
@@ -421,14 +414,10 @@ namespace CadCsvExcg
             }
         }
 
-        private void cobDelimiter3_SelectedIndexChanged(object sender, EventArgs e)
+        private void ddl_cad_type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SaveConfigure();
+            LoadConfigures(true);
         }
 
-        private void numQuantity_ValueChanged(object sender, EventArgs e)
-        {
-            SaveConfigure();
-        }
     }
 }
