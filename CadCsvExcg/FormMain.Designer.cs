@@ -49,6 +49,8 @@ namespace CadCsvExcg
             this.rdo_output_option3 = new System.Windows.Forms.RadioButton();
             this.cb_output_exclude = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.txt_output_include = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.grpBom = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -80,8 +82,6 @@ namespace CadCsvExcg
             this.ddl_cad_delimiter = new System.Windows.Forms.ComboBox();
             this.num_cad_id_pos = new System.Windows.Forms.NumericUpDown();
             this.cb_cad_header = new System.Windows.Forms.CheckBox();
-            this.cb_cad_filename = new System.Windows.Forms.CheckBox();
-            this.txt_cad_file_column = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.num_cad_quantity_pos = new System.Windows.Forms.NumericUpDown();
             this.ddl_cad_type = new System.Windows.Forms.ComboBox();
@@ -214,10 +214,12 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.Controls.Add(this.rdo_output_option3, 0, 13);
             this.tableLayoutPanel8.Controls.Add(this.cb_output_exclude, 0, 15);
             this.tableLayoutPanel8.Controls.Add(this.label7, 0, 10);
+            this.tableLayoutPanel8.Controls.Add(this.label8, 0, 17);
+            this.tableLayoutPanel8.Controls.Add(this.txt_output_include, 0, 18);
             this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel8.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel8.Name = "tableLayoutPanel8";
-            this.tableLayoutPanel8.RowCount = 17;
+            this.tableLayoutPanel8.RowCount = 20;
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -233,6 +235,9 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel8.Size = new System.Drawing.Size(182, 596);
@@ -387,6 +392,27 @@ namespace CadCsvExcg
             this.label7.Size = new System.Drawing.Size(176, 13);
             this.label7.TabIndex = 16;
             this.label7.Text = "Repeated row option:";
+            // 
+            // txt_output_include
+            // 
+            this.txt_output_include.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txt_output_include.Location = new System.Drawing.Point(3, 360);
+            this.txt_output_include.Name = "txt_output_include";
+            this.txt_output_include.Size = new System.Drawing.Size(176, 20);
+            this.txt_output_include.TabIndex = 17;
+            this.txt_output_include.TextChanged += new System.EventHandler(this.SaveConfigure);
+            // 
+            // label8
+            // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(3, 344);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(176, 13);
+            this.label8.TabIndex = 18;
+            this.label8.Text = "Include from PLM:";
             // 
             // tableLayoutPanel3
             // 
@@ -740,28 +766,25 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.ColumnCount = 2;
             this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel9.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel9.Controls.Add(this.label1, 0, 4);
-            this.tableLayoutPanel9.Controls.Add(this.lblCad, 0, 5);
-            this.tableLayoutPanel9.Controls.Add(this.ddl_cad_delimiter, 1, 4);
-            this.tableLayoutPanel9.Controls.Add(this.num_cad_id_pos, 1, 5);
+            this.tableLayoutPanel9.Controls.Add(this.label1, 0, 2);
+            this.tableLayoutPanel9.Controls.Add(this.lblCad, 0, 3);
+            this.tableLayoutPanel9.Controls.Add(this.ddl_cad_delimiter, 1, 2);
+            this.tableLayoutPanel9.Controls.Add(this.num_cad_id_pos, 1, 3);
             this.tableLayoutPanel9.Controls.Add(this.cb_cad_header, 0, 1);
-            this.tableLayoutPanel9.Controls.Add(this.cb_cad_filename, 0, 2);
-            this.tableLayoutPanel9.Controls.Add(this.txt_cad_file_column, 0, 3);
-            this.tableLayoutPanel9.Controls.Add(this.label6, 0, 6);
-            this.tableLayoutPanel9.Controls.Add(this.num_cad_quantity_pos, 1, 6);
+            this.tableLayoutPanel9.Controls.Add(this.label6, 0, 4);
+            this.tableLayoutPanel9.Controls.Add(this.num_cad_quantity_pos, 1, 4);
             this.tableLayoutPanel9.Controls.Add(this.ddl_cad_type, 0, 0);
             this.tableLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel9.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel9.Name = "tableLayoutPanel9";
-            this.tableLayoutPanel9.RowCount = 8;
+            this.tableLayoutPanel9.RowCount = 6;
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel9.Size = new System.Drawing.Size(182, 193);
             this.tableLayoutPanel9.TabIndex = 0;
@@ -772,7 +795,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 99);
+            this.label1.Location = new System.Drawing.Point(3, 50);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(92, 27);
             this.label1.TabIndex = 3;
@@ -785,7 +808,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCad.AutoSize = true;
-            this.lblCad.Location = new System.Drawing.Point(3, 126);
+            this.lblCad.Location = new System.Drawing.Point(3, 77);
             this.lblCad.Name = "lblCad";
             this.lblCad.Size = new System.Drawing.Size(92, 26);
             this.lblCad.TabIndex = 0;
@@ -798,7 +821,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ddl_cad_delimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddl_cad_delimiter.FormattingEnabled = true;
-            this.ddl_cad_delimiter.Location = new System.Drawing.Point(101, 102);
+            this.ddl_cad_delimiter.Location = new System.Drawing.Point(101, 53);
             this.ddl_cad_delimiter.Name = "ddl_cad_delimiter";
             this.ddl_cad_delimiter.Size = new System.Drawing.Size(78, 21);
             this.ddl_cad_delimiter.TabIndex = 4;
@@ -809,7 +832,7 @@ namespace CadCsvExcg
             // 
             this.num_cad_id_pos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.num_cad_id_pos.Location = new System.Drawing.Point(101, 129);
+            this.num_cad_id_pos.Location = new System.Drawing.Point(101, 80);
             this.num_cad_id_pos.Name = "num_cad_id_pos";
             this.num_cad_id_pos.Size = new System.Drawing.Size(78, 20);
             this.num_cad_id_pos.TabIndex = 2;
@@ -831,40 +854,13 @@ namespace CadCsvExcg
             this.cb_cad_header.UseVisualStyleBackColor = true;
             this.cb_cad_header.CheckedChanged += new System.EventHandler(this.SaveConfigure);
             // 
-            // cb_cad_filename
-            // 
-            this.cb_cad_filename.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cb_cad_filename.AutoSize = true;
-            this.tableLayoutPanel9.SetColumnSpan(this.cb_cad_filename, 2);
-            this.cb_cad_filename.Location = new System.Drawing.Point(3, 53);
-            this.cb_cad_filename.Name = "cb_cad_filename";
-            this.cb_cad_filename.Size = new System.Drawing.Size(176, 17);
-            this.cb_cad_filename.TabIndex = 9;
-            this.cb_cad_filename.TabStop = false;
-            this.cb_cad_filename.Text = "ファイル名の列追加";
-            this.cb_cad_filename.UseVisualStyleBackColor = true;
-            this.cb_cad_filename.CheckedChanged += new System.EventHandler(this.SaveConfigure);
-            // 
-            // txt_cad_file_column
-            // 
-            this.txt_cad_file_column.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.tableLayoutPanel9.SetColumnSpan(this.txt_cad_file_column, 2);
-            this.txt_cad_file_column.Location = new System.Drawing.Point(3, 76);
-            this.txt_cad_file_column.Name = "txt_cad_file_column";
-            this.txt_cad_file_column.Size = new System.Drawing.Size(176, 20);
-            this.txt_cad_file_column.TabIndex = 10;
-            this.txt_cad_file_column.TabStop = false;
-            this.txt_cad_file_column.Leave += new System.EventHandler(this.SaveConfigure);
-            // 
             // label6
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(3, 152);
+            this.label6.Location = new System.Drawing.Point(3, 103);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(92, 26);
             this.label6.TabIndex = 11;
@@ -875,7 +871,7 @@ namespace CadCsvExcg
             // 
             this.num_cad_quantity_pos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.num_cad_quantity_pos.Location = new System.Drawing.Point(101, 155);
+            this.num_cad_quantity_pos.Location = new System.Drawing.Point(101, 106);
             this.num_cad_quantity_pos.Name = "num_cad_quantity_pos";
             this.num_cad_quantity_pos.Size = new System.Drawing.Size(78, 20);
             this.num_cad_quantity_pos.TabIndex = 12;
@@ -1002,7 +998,6 @@ namespace CadCsvExcg
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btn_selectDir;
         private System.Windows.Forms.FolderBrowserDialog fbdOutput;
-        private System.Windows.Forms.CheckBox cb_cad_filename;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
@@ -1024,7 +1019,6 @@ namespace CadCsvExcg
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel10;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox ddl_output_encoding;
-        private System.Windows.Forms.TextBox txt_cad_file_column;
         private System.Windows.Forms.Label lblDelimiter3;
         private System.Windows.Forms.ComboBox ddl_output_delimiter;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
@@ -1036,6 +1030,8 @@ namespace CadCsvExcg
         private System.Windows.Forms.RadioButton rdo_output_option3;
         private System.Windows.Forms.CheckBox cb_output_exclude;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox txt_output_include;
+        private System.Windows.Forms.Label label8;
     }
 }
 

@@ -14,24 +14,6 @@
     <Setting Name="cad_header3" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="cad_filename1" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="cad_filename2" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="cad_filename3" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="cad_file_column_text1" Type="System.String" Scope="User">
-      <Value Profile="(Default)">FILENAME</Value>
-    </Setting>
-    <Setting Name="cad_file_column_text2" Type="System.String" Scope="User">
-      <Value Profile="(Default)">FILENAME</Value>
-    </Setting>
-    <Setting Name="cad_file_column_text3" Type="System.String" Scope="User">
-      <Value Profile="(Default)">FILENAME</Value>
-    </Setting>
     <Setting Name="cad_delimiter1" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
@@ -82,6 +64,9 @@
     </Setting>
     <Setting Name="output_repeat" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="output_include" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

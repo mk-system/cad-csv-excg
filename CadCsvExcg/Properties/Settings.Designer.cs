@@ -73,78 +73,6 @@ namespace CadCsvExcg.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool cad_filename1 {
-            get {
-                return ((bool)(this["cad_filename1"]));
-            }
-            set {
-                this["cad_filename1"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool cad_filename2 {
-            get {
-                return ((bool)(this["cad_filename2"]));
-            }
-            set {
-                this["cad_filename2"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool cad_filename3 {
-            get {
-                return ((bool)(this["cad_filename3"]));
-            }
-            set {
-                this["cad_filename3"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME")]
-        public string cad_file_column_text1 {
-            get {
-                return ((string)(this["cad_file_column_text1"]));
-            }
-            set {
-                this["cad_file_column_text1"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME")]
-        public string cad_file_column_text2 {
-            get {
-                return ((string)(this["cad_file_column_text2"]));
-            }
-            set {
-                this["cad_file_column_text2"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("FILENAME")]
-        public string cad_file_column_text3 {
-            get {
-                return ((string)(this["cad_file_column_text3"]));
-            }
-            set {
-                this["cad_file_column_text3"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int cad_delimiter1 {
             get {
@@ -344,6 +272,18 @@ namespace CadCsvExcg.Properties {
             }
             set {
                 this["output_repeat"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string output_include {
+            get {
+                return ((string)(this["output_include"]));
+            }
+            set {
+                this["output_include"] = value;
             }
         }
     }

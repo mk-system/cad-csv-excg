@@ -54,7 +54,6 @@ namespace CadCsvExcg
             this.ddl_cad_type.ValueMember = "ID";
             
             LoadConfigures();
-            this.txt_cad_file_column.Enabled = this.cb_cad_filename.Checked;
             CheckCombinable();
             initializeFinished = true;
         }
@@ -260,13 +259,10 @@ namespace CadCsvExcg
                     string file = item.SubItems[1].Text;
                     paths1.Add(file);
                 }
-                if (!this.cb_output_exclude.Checked)
+                foreach (ListViewItem item in lv_bom.Items)
                 {
-                    foreach (ListViewItem item in lv_bom.Items)
-                    {
-                        string file = item.SubItems[1].Text;
-                        paths2.Add(file);
-                    }
+                    string file = item.SubItems[1].Text;
+                    paths2.Add(file);
                 }
                 List<object> args = new List<object>
                 {
@@ -286,24 +282,18 @@ namespace CadCsvExcg
             {
                 case 0:
                     this.cb_cad_header.Checked = !!Properties.Settings.Default.cad_header1;
-                    this.cb_cad_filename.Checked = !!Properties.Settings.Default.cad_filename1;
-                    this.txt_cad_file_column.Text = Properties.Settings.Default.cad_file_column_text1;
                     this.ddl_cad_delimiter.SelectedIndex = (int)Properties.Settings.Default.cad_delimiter1;
                     this.num_cad_id_pos.Value = (int)Properties.Settings.Default.cad_id_pos1;
                     this.num_cad_quantity_pos.Value = (int)Properties.Settings.Default.cad_quantity_pos1;
                     break;
                 case 1:
                     this.cb_cad_header.Checked = !!Properties.Settings.Default.cad_header2;
-                    this.cb_cad_filename.Checked = !!Properties.Settings.Default.cad_filename2;
-                    this.txt_cad_file_column.Text = Properties.Settings.Default.cad_file_column_text2;
                     this.ddl_cad_delimiter.SelectedIndex = (int)Properties.Settings.Default.cad_delimiter2;
                     this.num_cad_id_pos.Value = (int)Properties.Settings.Default.cad_id_pos2;
                     this.num_cad_quantity_pos.Value = (int)Properties.Settings.Default.cad_quantity_pos2;
                     break;
                 case 2:
                     this.cb_cad_header.Checked = !!Properties.Settings.Default.cad_header3;
-                    this.cb_cad_filename.Checked = !!Properties.Settings.Default.cad_filename3;
-                    this.txt_cad_file_column.Text = Properties.Settings.Default.cad_file_column_text3;
                     this.ddl_cad_delimiter.SelectedIndex = (int)Properties.Settings.Default.cad_delimiter3;
                     this.num_cad_id_pos.Value = (int)Properties.Settings.Default.cad_id_pos3;
                     this.num_cad_quantity_pos.Value = (int)Properties.Settings.Default.cad_quantity_pos3;
@@ -319,6 +309,7 @@ namespace CadCsvExcg
                 this.ddl_output_encoding.SelectedIndex = (int)Properties.Settings.Default.output_encoding;
                 this.ddl_output_delimiter.SelectedIndex = (int)Properties.Settings.Default.output_delimiter;
                 this.cb_output_exclude.Checked = !!Properties.Settings.Default.output_exclude;
+                this.txt_output_include.Text = Properties.Settings.Default.output_include;
                 switch (Properties.Settings.Default.output_repeat)
                 {
                     case 0:
@@ -344,31 +335,24 @@ namespace CadCsvExcg
 
         private void SaveConfigure(object sender, EventArgs e)
         {
-            this.txt_cad_file_column.Enabled = this.cb_cad_filename.Checked;
             if (initializeFinished && !isLoadingConfigure)
             {
                 switch ((int)this.ddl_cad_type.SelectedIndex)
                 {
                     case 0:
                         Properties.Settings.Default.cad_header1 = !!this.cb_cad_header.Checked;
-                        Properties.Settings.Default.cad_filename1 = !!this.cb_cad_filename.Checked;
-                        Properties.Settings.Default.cad_file_column_text1 = this.txt_cad_file_column.Text;
                         Properties.Settings.Default.cad_id_pos1 = (int)this.num_cad_id_pos.Value;
                         Properties.Settings.Default.cad_quantity_pos1 = (int)this.num_cad_quantity_pos.Value;
                         Properties.Settings.Default.cad_delimiter1 = (int)this.ddl_cad_delimiter.SelectedIndex;
                         break;
                     case 1:
                         Properties.Settings.Default.cad_header2 = !!this.cb_cad_header.Checked;
-                        Properties.Settings.Default.cad_filename2 = !!this.cb_cad_filename.Checked;
-                        Properties.Settings.Default.cad_file_column_text2 = this.txt_cad_file_column.Text;
                         Properties.Settings.Default.cad_id_pos2 = (int)this.num_cad_id_pos.Value;
                         Properties.Settings.Default.cad_quantity_pos2 = (int)this.num_cad_quantity_pos.Value;
                         Properties.Settings.Default.cad_delimiter2 = (int)this.ddl_cad_delimiter.SelectedIndex;
                         break;
                     case 2:
                         Properties.Settings.Default.cad_header3 = !!this.cb_cad_header.Checked;
-                        Properties.Settings.Default.cad_filename3 = !!this.cb_cad_filename.Checked;
-                        Properties.Settings.Default.cad_file_column_text3 = this.txt_cad_file_column.Text;
                         Properties.Settings.Default.cad_id_pos3 = (int)this.num_cad_id_pos.Value;
                         Properties.Settings.Default.cad_quantity_pos3 = (int)this.num_cad_quantity_pos.Value;
                         Properties.Settings.Default.cad_delimiter3 = (int)this.ddl_cad_delimiter.SelectedIndex;
@@ -383,6 +367,7 @@ namespace CadCsvExcg
                 Properties.Settings.Default.output_encoding = (int)this.ddl_output_encoding.SelectedIndex;
                 Properties.Settings.Default.output_delimiter = (int)this.ddl_output_delimiter.SelectedIndex;
                 Properties.Settings.Default.output_exclude = !!this.cb_output_exclude.Checked;
+                Properties.Settings.Default.output_include = this.txt_output_include.Text;
                 if (rdo_output_option1.Checked)
                 {
                     Properties.Settings.Default.output_repeat = 0;
@@ -403,7 +388,7 @@ namespace CadCsvExcg
             if (value)
             {
                 // disable
-                toolStripStatusLabel1.Text = "Loading...";
+                toolStripStatusLabel1.Text = "読み込み中";
                 this.Enabled = false;
             }
             else
