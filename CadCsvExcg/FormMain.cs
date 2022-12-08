@@ -52,7 +52,9 @@ namespace CadCsvExcg
             this.ddl_cad_type.DataSource = cadList;
             this.ddl_cad_type.DisplayMember = "Text";
             this.ddl_cad_type.ValueMember = "ID";
-            
+
+            this.txt_output_include.Enabled = this.cb_output_include.Checked;
+
             LoadConfigures();
             CheckCombinable();
             initializeFinished = true;
@@ -310,6 +312,7 @@ namespace CadCsvExcg
                 this.ddl_output_delimiter.SelectedIndex = (int)Properties.Settings.Default.output_delimiter;
                 this.cb_output_exclude.Checked = !!Properties.Settings.Default.output_exclude;
                 this.txt_output_include.Text = Properties.Settings.Default.output_include;
+                this.cb_output_include.Checked = !!Properties.Settings.Default.output_isinclude;
                 switch (Properties.Settings.Default.output_repeat)
                 {
                     case 0:
@@ -368,6 +371,7 @@ namespace CadCsvExcg
                 Properties.Settings.Default.output_delimiter = (int)this.ddl_output_delimiter.SelectedIndex;
                 Properties.Settings.Default.output_exclude = !!this.cb_output_exclude.Checked;
                 Properties.Settings.Default.output_include = this.txt_output_include.Text;
+                Properties.Settings.Default.output_isinclude = this.cb_output_include.Checked;
                 if (rdo_output_option1.Checked)
                 {
                     Properties.Settings.Default.output_repeat = 0;
@@ -404,5 +408,10 @@ namespace CadCsvExcg
             LoadConfigures(true);
         }
 
+        private void cb_output_include_CheckedChanged(object sender, EventArgs e)
+        {
+            this.txt_output_include.Enabled = this.cb_output_include.Checked;
+            SaveConfigure(sender, e);
+        }
     }
 }

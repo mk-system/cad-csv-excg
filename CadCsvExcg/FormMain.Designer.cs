@@ -50,7 +50,7 @@ namespace CadCsvExcg
             this.cb_output_exclude = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.txt_output_include = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
+            this.cb_output_include = new System.Windows.Forms.CheckBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.grpBom = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -214,8 +214,8 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.Controls.Add(this.rdo_output_option3, 0, 13);
             this.tableLayoutPanel8.Controls.Add(this.cb_output_exclude, 0, 15);
             this.tableLayoutPanel8.Controls.Add(this.label7, 0, 10);
-            this.tableLayoutPanel8.Controls.Add(this.label8, 0, 17);
             this.tableLayoutPanel8.Controls.Add(this.txt_output_include, 0, 18);
+            this.tableLayoutPanel8.Controls.Add(this.cb_output_include, 0, 17);
             this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel8.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel8.Name = "tableLayoutPanel8";
@@ -378,7 +378,7 @@ namespace CadCsvExcg
             this.cb_output_exclude.Name = "cb_output_exclude";
             this.cb_output_exclude.Size = new System.Drawing.Size(176, 17);
             this.cb_output_exclude.TabIndex = 15;
-            this.cb_output_exclude.Text = "Exlcude PLM file from output";
+            this.cb_output_exclude.Text = "ファイルに品目属性を追加";
             this.cb_output_exclude.UseVisualStyleBackColor = true;
             this.cb_output_exclude.CheckedChanged += new System.EventHandler(this.SaveConfigure);
             // 
@@ -397,22 +397,24 @@ namespace CadCsvExcg
             // 
             this.txt_output_include.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txt_output_include.Location = new System.Drawing.Point(3, 360);
+            this.txt_output_include.Location = new System.Drawing.Point(3, 370);
             this.txt_output_include.Name = "txt_output_include";
             this.txt_output_include.Size = new System.Drawing.Size(176, 20);
             this.txt_output_include.TabIndex = 17;
             this.txt_output_include.TextChanged += new System.EventHandler(this.SaveConfigure);
             // 
-            // label8
+            // cb_output_include
             // 
-            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cb_output_include.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(3, 344);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(176, 13);
-            this.label8.TabIndex = 18;
-            this.label8.Text = "Include from PLM:";
+            this.cb_output_include.AutoSize = true;
+            this.cb_output_include.Location = new System.Drawing.Point(3, 347);
+            this.cb_output_include.Name = "cb_output_include";
+            this.cb_output_include.Size = new System.Drawing.Size(176, 17);
+            this.cb_output_include.TabIndex = 18;
+            this.cb_output_include.Text = "最上位品目（CT）を指定";
+            this.cb_output_include.UseVisualStyleBackColor = true;
+            this.cb_output_include.CheckedChanged += new System.EventHandler(this.cb_output_include_CheckedChanged);
             // 
             // tableLayoutPanel3
             // 
@@ -1031,7 +1033,7 @@ namespace CadCsvExcg
         private System.Windows.Forms.CheckBox cb_output_exclude;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox txt_output_include;
-        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.CheckBox cb_output_include;
     }
 }
 

@@ -502,27 +502,26 @@ namespace CadCsvExcg
 
             if (include != null && include.Length > 0)
             {
+                DataRow dr = resultDt.NewRow();
+                dr[0] = null;
+                dr[1] = include;
+                dr[2] = "1";
+                resultDt.Rows.InsertAt(dr, 0);
                 bool available = dt2.AsEnumerable().Any(r => r[0].ToString() == include);
-                if (available)
-                {
-                    DataRow r = resultDt.NewRow();
-                    r[0] = null;
-                    r[1] = include;
-                    r[2] = "1";
-                    resultDt.Rows.InsertAt(r, 0);
-                    foreach (var (path, i) in paths1.Select((v, i) => (v, i)))
-                    {
-                        string filename = Path.GetFileNameWithoutExtension(path);
-                        DataRow r2 = resultDt.NewRow();
-                        r2[0] = include;
-                        r2[1] = filename;
-                        r2[2] = "1";
-                        resultDt.Rows.InsertAt(r2, i + 1);
-                    }
-                }
-                else
+                if (!available)
                 {
                     MessageBox.Show(include + " not found.", "Warning");
+                }
+
+   
+                foreach (var (path, i) in paths1.Select((v, i) => (v, i)))
+                {
+                    string filename = Path.GetFileNameWithoutExtension(path);
+                    DataRow r2 = resultDt.NewRow();
+                    r2[0] = include;
+                    r2[1] = filename;
+                    r2[2] = "1";
+                    resultDt.Rows.InsertAt(r2, i + 1);
                 }
             }
 

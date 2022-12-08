@@ -286,5 +286,17 @@ namespace CadCsvExcg.Properties {
                 this["output_include"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool output_isinclude {
+            get {
+                return ((bool)(this["output_isinclude"]));
+            }
+            set {
+                this["output_isinclude"] = value;
+            }
+        }
     }
 }
