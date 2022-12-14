@@ -332,11 +332,11 @@ namespace CadCsvExcg
             this.rdo_output_option1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rdo_output_option1.AutoSize = true;
+            this.rdo_output_option1.Enabled = false;
             this.rdo_output_option1.Location = new System.Drawing.Point(3, 215);
             this.rdo_output_option1.Name = "rdo_output_option1";
             this.rdo_output_option1.Size = new System.Drawing.Size(176, 17);
             this.rdo_output_option1.TabIndex = 12;
-            this.rdo_output_option1.TabStop = true;
             this.rdo_output_option1.Text = "そのまま";
             this.rdo_output_option1.UseVisualStyleBackColor = true;
             this.rdo_output_option1.Click += new System.EventHandler(this.SaveConfigure);
@@ -346,6 +346,7 @@ namespace CadCsvExcg
             this.rdo_output_option2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rdo_output_option2.AutoSize = true;
+            this.rdo_output_option2.Checked = true;
             this.rdo_output_option2.Location = new System.Drawing.Point(3, 238);
             this.rdo_output_option2.Name = "rdo_output_option2";
             this.rdo_output_option2.Size = new System.Drawing.Size(176, 17);
@@ -360,11 +361,11 @@ namespace CadCsvExcg
             this.rdo_output_option3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rdo_output_option3.AutoSize = true;
+            this.rdo_output_option3.Enabled = false;
             this.rdo_output_option3.Location = new System.Drawing.Point(3, 261);
             this.rdo_output_option3.Name = "rdo_output_option3";
             this.rdo_output_option3.Size = new System.Drawing.Size(176, 17);
             this.rdo_output_option3.TabIndex = 14;
-            this.rdo_output_option3.TabStop = true;
             this.rdo_output_option3.Text = "員数分解";
             this.rdo_output_option3.UseVisualStyleBackColor = true;
             this.rdo_output_option3.Click += new System.EventHandler(this.SaveConfigure);
@@ -391,7 +392,7 @@ namespace CadCsvExcg
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(176, 13);
             this.label7.TabIndex = 16;
-            this.label7.Text = "Repeated row option:";
+            this.label7.Text = "構成出力オプション：";
             // 
             // txt_output_include
             // 

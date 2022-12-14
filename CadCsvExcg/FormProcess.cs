@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Documents;
 using System.Windows.Forms;
 
 namespace CadCsvExcg
@@ -57,7 +58,6 @@ namespace CadCsvExcg
                 backgroundWorker2.CancelAsync();
             }
         }
-
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -198,19 +198,14 @@ namespace CadCsvExcg
             this.Close();
         }
 
-
-        private static string[] PrependNewField(string[] target, string data)
-        {
-            List<string> list = new List<string>(target);
-            list.Insert(0, data);
-            return list.ToArray();
-        }
-
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         {
 
             BackgroundWorker worker = sender as BackgroundWorker;
-            DataTable dt1 = new DataTable();
+
+            List<DataTable> dts = new List<DataTable>();
+
+            // DataTable dt1 = new DataTable();
             DataTable dt2 = new DataTable();
 
             List<object> genericList = e.Argument as List<object>;
@@ -219,9 +214,11 @@ namespace CadCsvExcg
 
             CSVConfig config1 = new CSVConfig(1);
             CSVConfig config2 = new CSVConfig(2);
+            // CSVConfig outputConfig = new CSVConfig(3);
 
             bool exclude = !!Properties.Settings.Default.output_exclude;
             int outputType = Properties.Settings.Default.output_repeat;
+            bool isInclude = !!Properties.Settings.Default.output_isinclude;
             string include = Properties.Settings.Default.output_include;
 
             int primary1_pos, primary2_pos, quantity_pos = 0;
@@ -282,34 +279,30 @@ namespace CadCsvExcg
                             fields = fields.Where((_, i) => i == config1.columnMatchPosition - 1 || i == config1.columnQuantityPosition - 1).ToArray();
 
                             // prepending filename as column
-                            if (config1.usingFilename)
+                            if (currentLine == 0 && config1.hasHeaderRow)
                             {
-                                if (currentLine == 0 && config1.hasHeaderRow)
-                                {
-                                    fields = PrependNewField(fields, (string)config1.columnFilenameText);
-                                }
-                                else
-                                {
-                                    fields = PrependNewField(fields, (string)filename);
-                                }
+                                fields = PrependNewField(fields, (string)config1.columnFilenameText);
                             }
+                            else
+                            {
+                                fields = PrependNewField(fields, (string)filename);
+                            }
+
                             // setting header
                             if (currentLine == 0)
                             {
                                 foreach (var (field, i) in fields.Select((v, i) => (v, i + 1)))
                                 {
                                     string columnText = "桁";
-                                    int primaryPos = primary1_pos + 1;
-                                    int quantityPos = quantity_pos + 1;
                                     if (i == 1)
                                     {
                                         columnText = "親品目番号";
                                     }
-                                    else if (i == primaryPos)
+                                    else if (i == primary1_pos + 1)
                                     {
-                                        columnText = "子品目番号";
+                                        columnText = field;
                                     }
-                                    else if (i == quantityPos)
+                                    else if (i == quantity_pos + 1)
                                     {
                                         columnText = "員数";
                                     }
@@ -365,24 +358,15 @@ namespace CadCsvExcg
                         }
                     }
                 }
-                dt1.Merge(dt);
+                if (isInclude || currentPath == 0)
+                {
+                    dts.Add(dt);
+                }
+                else
+                {
+                    dts.First().Merge(dt);
+                }
                 currentPath++;
-            }
-            // merge duplicated rows of CAD
-            if (outputType == 1)
-            {
-                DataTable tmpDt = dt1.AsEnumerable().GroupBy(r => new
-                {
-                    fname = r[0],
-                    match = r[primary1_pos]
-                }).Select(g =>
-                {
-                    var row = g.First();
-                    row.SetField(dt1.Columns[quantity_pos].ColumnName.ToString(), g.Sum(r => Convert.ToInt32(r[quantity_pos])).ToString());
-                    return row;
-                }).CopyToDataTable();
-                dt1.Clear();
-                dt1.Merge(tmpDt, false, MissingSchemaAction.Add);
             }
             // BOM files
             foreach (var path in (string[])genericList[1])
@@ -417,7 +401,6 @@ namespace CadCsvExcg
                             {
                                 fields = fields.Where((_, i) => i == 0 || i == primary2_pos).ToArray();
                             }
-
                             if (currentLine == 0)
                             {
                                 bool duplicated = false;
@@ -425,19 +408,29 @@ namespace CadCsvExcg
                                 {
                                     duplicated = true;
                                 }
-
                                 foreach (var (field, i) in fields.Select((v, i) => (v, i + 1)))
                                 {
                                     string columnText = "桁";
-                                    if (i == (exclude ? 2 : primary2_pos + 1))
+                                    if (i == 1)
                                     {
-                                        columnText = "子品目番号";
+                                        columnText = "品目番号";
+                                    }
+                                    else if (i == primary2_pos + 1)
+                                    {
+                                        columnText = field;
                                     }
                                     else
                                     {
-                                        columnText += (lastColumnIndex + i);
+                                        if (config2.hasHeaderRow && !duplicated)
+                                        {
+                                            columnText = field;
+                                        }
+                                        else
+                                        {
+                                            columnText += (lastColumnIndex + i);
+                                        }
                                     }
-                                    DataColumn dc = new DataColumn(config2.hasHeaderRow && !duplicated && i != (exclude ? 2 : primary2_pos + 1) ? field : columnText)
+                                    DataColumn dc = new DataColumn(columnText)
                                     {
                                         AllowDBNull = true
                                     };
@@ -468,64 +461,121 @@ namespace CadCsvExcg
             // updating primary pos of table2
             primary2_pos = exclude ? 1 : primary2_pos;
 
-            // merged table dt1 and dt2
-            DataTable dt3 = new DataTable();
-            dt3.Merge(dt1, false, MissingSchemaAction.Add);
-            dt3.Merge(dt2, false, MissingSchemaAction.Add);
-            DataTable tmp = dt3.Clone();
-            DataTable resultDt = tmp.Clone();
+            DateTime now = DateTime.Now;
+            Delimiter delimiter = (Delimiter)Properties.Settings.Default.output_delimiter;
+            Encoding encoding = ((Encoder)Properties.Settings.Default.output_encoding).GetEncoding();
+            int filecount = 0;
 
-            // outer join two tables
-            DataTable joinedDt = (from t1 in dt1.AsEnumerable()
-                                  join t2 in dt2.AsEnumerable()
-                                  on new { ID = t1[primary1_pos] } equals new { ID = t2[primary2_pos] }
-                                  select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, primary2_pos), true)).CopyToDataTable();
+            // Removing duplicated rows from dt2
+            DataTable tmpDt2 = dt2.DefaultView.ToTable( /*distinct*/ true);
+            dt2.Clear();
+            dt2.Merge(tmpDt2, false, MissingSchemaAction.Add);
 
-            if (joinedDt.Rows.Count != dt1.Rows.Count)
+            // merging two tables into one
+            foreach (var dt1 in dts)
             {
-                DataTable errorDt = dt1.AsEnumerable().Except(
-                    from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[primary1_pos] equals t2[primary2_pos] select t1).CopyToDataTable();
-
-                Exception ex = new Exception("Some BOM records are not matching with CAD records.");
-                ex.Data.Add("DATA_TABLE", (DataTable)errorDt);
-                throw ex;
-            }
-
-            resultDt.Merge(joinedDt);
-            // swapping column
-            resultDt.Columns[3].SetOrdinal(1);
-            resultDt.Columns[2].SetOrdinal(3);
-            if (exclude == true)
-            {
-                resultDt.Columns.RemoveAt(3);
-            }
-
-            if (include != null && include.Length > 0)
-            {
-                DataRow dr = resultDt.NewRow();
-                dr[0] = null;
-                dr[1] = include;
-                dr[2] = "1";
-                resultDt.Rows.InsertAt(dr, 0);
-                bool available = dt2.AsEnumerable().Any(r => r[0].ToString() == include);
-                if (!available)
+                // merge duplicated rows of CAD and increase quantity
+                if (outputType == 1)
                 {
-                    MessageBox.Show(include + " not found.", "Warning");
+                    DataTable tmpDt = dt1.AsEnumerable().GroupBy(r => new
+                    {
+                        fname = r[0],
+                        match = r[primary1_pos]
+                    }).Select(g =>
+                    {
+                        var row = g.First();
+                        row.SetField(dt1.Columns[quantity_pos].ColumnName.ToString(), g.Sum(r => Convert.ToInt32(r[quantity_pos])).ToString());
+                        return row;
+                    }).CopyToDataTable();
+                    dt1.Clear();
+                    dt1.Merge(tmpDt, false, MissingSchemaAction.Add);
                 }
 
-   
-                foreach (var (path, i) in paths1.Select((v, i) => (v, i)))
+                DataTable mergedDt = new DataTable();
+                mergedDt.Merge(dt1, false, MissingSchemaAction.Add);
+                mergedDt.Merge(dt2, false, MissingSchemaAction.Add);
+                DataTable tmp = mergedDt.Clone();
+                DataTable resultDt = tmp.Clone();
+
+                // outer join two tables
+                DataTable joinedDt = (from t1 in dt1.AsEnumerable()
+                                      join t2 in dt2.AsEnumerable()
+                                      on new { ID = t1[primary1_pos] } equals new { ID = t2[primary2_pos] }
+                                      select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, primary2_pos), true)).CopyToDataTable();
+
+                if (joinedDt.Rows.Count != dt1.Rows.Count)
                 {
-                    string filename = Path.GetFileNameWithoutExtension(path);
-                    DataRow r2 = resultDt.NewRow();
-                    r2[0] = include;
-                    r2[1] = filename;
-                    r2[2] = "1";
-                    resultDt.Rows.InsertAt(r2, i + 1);
+                    DataTable errorDt = dt1.AsEnumerable().Except(
+                        from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[primary1_pos] equals t2[primary2_pos] select t1).CopyToDataTable();
+
+                    errorDt.Columns.Add("エラーコード");
+                    errorDt.Columns.Add("エラー内容");
+                    errorDt.Rows[0][3] = "01";
+                    errorDt.Rows[0][4] = "PLM品目にない構成品";
+                    Exception ex = new Exception("CADファイルに、PLM品目にない構成品が存在しています。");
+                    ex.Data.Add("DATA_TABLE", (DataTable)errorDt);
+                    throw ex;
+                }
+                else
+                {
+                    resultDt.Merge(joinedDt);
+                    // swapping column
+                    resultDt.Columns[3].SetOrdinal(1);
+                    resultDt.Columns[2].SetOrdinal(3);
+
+                    if (exclude == true)
+                    {
+                        resultDt.Columns.RemoveAt(3);
+                    }
+
+                    if (include != null && include.Length > 0)
+                    {
+                        DataRow dr = resultDt.NewRow();
+                        dr[0] = null;
+                        dr[1] = include;
+                        dr[2] = "1";
+                        resultDt.Rows.InsertAt(dr, 0);
+
+                        // show warning if INCLUDED DATA not found;
+                        if (!dt2.AsEnumerable().Any(r => r[0].ToString() == include))
+                        {
+                            MessageBox.Show(include + "がPLM品目マスタに存在しません。", "Warning");
+                        }
+
+
+                        foreach (var (path, i) in paths1.Select((v, i) => (v, i)))
+                        {
+                            string filename = Path.GetFileNameWithoutExtension(path);
+                            if (isInclude)
+                            {
+                                if (i == filecount)
+                                {
+                                    DataRow r2 = resultDt.NewRow();
+                                    r2[0] = include;
+                                    r2[1] = filename;
+                                    r2[2] = "1";
+                                    resultDt.Rows.InsertAt(r2, 1);
+                                }
+                            } else
+                            {
+                                DataRow r2 = resultDt.NewRow();
+                                r2[0] = include;
+                                r2[1] = filename;
+                                r2[2] = "1";
+                                resultDt.Rows.InsertAt(r2, i + 1);
+                            }
+                        }
+                    }
+                    string outputPath = Properties.Settings.Default.output_dir + "\\" + now.ToString("ddMMyyyyHHmmss") + ".csv";
+                    if (dts.Count() > 1)
+                    {
+                        outputPath = Properties.Settings.Default.output_dir + "\\" + now.ToString("ddMMyyyyHHmmss") + "-" + filecount + ".csv";
+                        filecount++;
+                    }
+                    SaveFile(resultDt, outputPath, encoding, delimiter);
                 }
             }
-
-            e.Result = resultDt;
+            e.Result = "success";
         }
 
         private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -537,9 +587,8 @@ namespace CadCsvExcg
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             DateTime now = DateTime.Now;
-            string outputPath = Properties.Settings.Default.output_dir + "\\" + now.ToString("ddMMyyyyHHmmss") + ".csv";
             string outputErrorPath = Properties.Settings.Default.output_dir + "\\" + "error_" + now.ToString("ddMMyyyyHHmmss") + ".csv";
-            string delimiter = ((Delimiter)Properties.Settings.Default.output_delimiter).GetString();
+            Delimiter delimiter = (Delimiter)Properties.Settings.Default.output_delimiter;
             Encoding encoding = ((Encoder)Properties.Settings.Default.output_encoding).GetEncoding();
 
             if (e.Cancelled == true)
@@ -552,107 +601,15 @@ namespace CadCsvExcg
                 MessageBox.Show(e.Error.Message, "Error");
                 lblResult.Text = "Error: " + e.Error.Message;
                 DataTable dt = (DataTable)e.Error.Data["DATA_TABLE"];
-                try
-                {
-                    using (Stream s = File.Create(outputErrorPath))
-                    {
-                        StreamWriter sw = new StreamWriter(s, encoding);
-                        if (true)
-                        {
-                            for (int i = 0; i < dt.Columns.Count; i++)
-                            {
-                                sw.Write(dt.Columns[i]);
-                                if (i < dt.Columns.Count - 1)
-                                {
-                                    sw.Write(delimiter);
-                                }
-                            }
-                            sw.Write(sw.NewLine);
-                        }
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            for (int i = 0; i < dt.Columns.Count; i++)
-                            {
-                                if (!Convert.IsDBNull(dr[i]))
-                                {
-                                    string value = dr[i].ToString();
-                                    if (value.Contains(","))
-                                    {
-                                        value = String.Format("\"{0}\"", value);
-                                        sw.Write(value);
-                                    }
-                                    else
-                                    {
-                                        sw.Write(dr[i].ToString());
-                                    }
-                                }
-                                if (i < dt.Columns.Count - 1)
-                                {
-                                    sw.Write(delimiter);
-                                }
-                            }
-                            sw.Write(sw.NewLine);
-                        }
-                        sw.Close();
-                    }
-                    MessageBox.Show("Error saved to the output directory.", "Finished");
-                    var fullPath = System.IO.Path.GetFullPath(Properties.Settings.Default.output_dir);
-                    Process.Start("explorer.exe", @"" + fullPath + "");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                SaveFile(dt, outputErrorPath, encoding, delimiter);
             }
             else
             {
                 progressBar1.Value = progressBar1.Maximum;
                 lblResult.Text = "Done!";
                 button1.Enabled = false;
-                DataTable dt = (DataTable)e.Result;
                 try
                 {
-                    using (Stream s = File.Create(outputPath))
-                    {
-                        StreamWriter sw = new StreamWriter(s, encoding);
-                        if (true)
-                        {
-                            for (int i = 0; i < dt.Columns.Count; i++)
-                            {
-                                sw.Write(dt.Columns[i]);
-                                if (i < dt.Columns.Count - 1)
-                                {
-                                    sw.Write(delimiter);
-                                }
-                            }
-                            sw.Write(sw.NewLine);
-                        }
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            for (int i = 0; i < dt.Columns.Count; i++)
-                            {
-                                if (!Convert.IsDBNull(dr[i]))
-                                {
-                                    string value = dr[i].ToString();
-                                    if (value.Contains(","))
-                                    {
-                                        value = String.Format("\"{0}\"", value);
-                                        sw.Write(value);
-                                    }
-                                    else
-                                    {
-                                        sw.Write(dr[i].ToString());
-                                    }
-                                }
-                                if (i < dt.Columns.Count - 1)
-                                {
-                                    sw.Write(delimiter);
-                                }
-                            }
-                            sw.Write(sw.NewLine);
-                        }
-                        sw.Close();
-                    }
                     MessageBox.Show("File saved to the output directory.", "Finished");
                     var fullPath = System.IO.Path.GetFullPath(Properties.Settings.Default.output_dir);
                     Process.Start("explorer.exe", @"" + fullPath + "");
@@ -665,12 +622,67 @@ namespace CadCsvExcg
             this.Close();
         }
 
+        private static string[] PrependNewField(string[] target, string data)
+        {
+            List<string> list = new List<string>(target);
+            list.Insert(0, data);
+            return list.ToArray();
+        }
+
         public static T[] Concatenate<T>(T[] array1, T[] array2, int excludedIndex = 0)
         {
             T[] result = new T[array1.Length + array2.Length - 1];
             array1.CopyTo(result, 0);
             array2.Where((v, i) => i != excludedIndex).ToArray().CopyTo(result, array1.Length);
             return result;
+        }
+
+        private DataTable ReadFile(string dir, Encoding encoding, Delimiter delimiter)
+        {
+            DataTable dt = new DataTable();
+            return dt;
+        }
+
+        private void SaveFile(DataTable dt, string dir, Encoding encoding, Delimiter delimiter)
+        {
+            using (Stream s = File.Create(dir))
+            {
+                StreamWriter sw = new StreamWriter(s, encoding);
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    sw.Write(dt.Columns[i]);
+                    if (i < dt.Columns.Count - 1)
+                    {
+                        sw.Write(delimiter.GetString());
+                    }
+                }
+                sw.Write(sw.NewLine);
+                foreach (DataRow dr in dt.Rows)
+                {
+                    for (int i = 0; i < dt.Columns.Count; i++)
+                    {
+                        if (!Convert.IsDBNull(dr[i]))
+                        {
+                            string value = dr[i].ToString();
+                            if (value.Contains(","))
+                            {
+                                value = String.Format("\"{0}\"", value);
+                                sw.Write(value);
+                            }
+                            else
+                            {
+                                sw.Write(dr[i].ToString());
+                            }
+                        }
+                        if (i < dt.Columns.Count - 1)
+                        {
+                            sw.Write(delimiter.GetString());
+                        }
+                    }
+                    sw.Write(sw.NewLine);
+                }
+                sw.Close();
+            }
         }
     }
 
@@ -719,6 +731,9 @@ namespace CadCsvExcg
                     this.columnFilenameText = "";
                     this.columnMatchPosition = (int)Properties.Settings.Default.bom_id_pos;
                     this.columnQuantityPosition = -1;
+                    break;
+                case 3:
+                    // output config
                     break;
             }
         }

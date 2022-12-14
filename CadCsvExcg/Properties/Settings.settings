@@ -6,13 +6,13 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="cad_header1" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="cad_header2" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="cad_header3" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="cad_delimiter1" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -24,7 +24,7 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="cad_id_pos1" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="cad_id_pos2" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -33,7 +33,7 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="cad_quantity_pos1" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="cad_quantity_pos2" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -42,13 +42,13 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="bom_header" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="bom_delimiter" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="bom_id_pos" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">3</Value>
     </Setting>
     <Setting Name="output_dir" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\\csv_output</Value>
@@ -63,7 +63,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="output_repeat" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="output_include" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
