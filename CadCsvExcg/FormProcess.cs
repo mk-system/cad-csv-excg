@@ -6,9 +6,14 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
+using System.Windows.Shapes;
 
 namespace CadCsvExcg
 {
@@ -64,107 +69,26 @@ namespace CadCsvExcg
             try
             {
                 BackgroundWorker worker = sender as BackgroundWorker;
-
                 List<object> genericList = e.Argument as List<object>;
                 string path = (string)genericList[0];
-                int configurationNumber = (int)genericList[1];
-                bool isCAD = (bool)genericList[2];
-                CSVConfig config = new CSVConfig(configurationNumber);
-
-                DataTable dt = new DataTable();
-
-                string fileName = Path.GetFileNameWithoutExtension(path);
-                long totalLines = File.ReadLines(path).Count();
-
-                using (TextFieldParser reader = new TextFieldParser(path))
+                CSVConfig config = new CSVConfig((int)genericList[1]);
+                DataTable dt = ReadFile(path, config.hasHeaderRow, config.delimiter, (complete) =>
                 {
-                    reader.TextFieldType = FieldType.Delimited;
-                    reader.SetDelimiters(new string[] { config.delimiter });
-                    reader.HasFieldsEnclosedInQuotes = true;
-
-                    long currentLine = 0;
-
-                    while (!reader.EndOfData)
+                    if (worker.CancellationPending == true)
                     {
-                        if (worker.CancellationPending == true)
-                        {
-                            e.Cancel = true;
-                            break;
-                        }
-                        else
-                        {
-                            string[] fields = reader.ReadFields();
-
-                            if (isCAD && config.columnMatchPosition > 0 && config.columnQuantityPosition > 0)
-                            {
-                                fields = fields.Where((el, i) => i == config.columnMatchPosition - 1 || i == config.columnQuantityPosition - 1).ToArray();
-                            }
-                            if (config.usingFilename)
-                            {
-                                string newField;
-                                if (currentLine == 0 && config.hasHeaderRow)
-                                {
-                                    newField = "親品目番号";
-                                }
-                                else
-                                {
-                                    newField = fileName;
-                                }
-                                fields = PrependNewField(fields, newField);
-                            }
-                            for (int i = 0; i < fields.Length; i++)
-                            {
-                                if (fields[i] == "")
-                                {
-                                    fields[i] = null;
-                                }
-                            }
-                            if (currentLine == 0)
-                            {
-                                bool duplicated = false;
-                                if (config.hasHeaderRow && fields.Length != fields.Distinct().Count())
-                                {
-                                    MessageBox.Show("Could not set first line as header.", "Duplicated fields");
-                                    duplicated = true;
-                                }
-                                foreach (var field in fields)
-                                {
-                                    DataColumn dc = new DataColumn(config.hasHeaderRow && !duplicated ? field : null)
-                                    {
-                                        AllowDBNull = true
-                                    };
-                                    dt.Columns.Add(dc);
-                                }
-                                if (!config.hasHeaderRow || duplicated)
-                                {
-                                    dt.Rows.Add(fields);
-                                }
-                            }
-                            else
-                            {
-                                dt.Rows.Add(fields);
-                            }
-                            currentLine = reader.LineNumber;
-                            int complete = (int)Math.Round((double)(100 * currentLine) / totalLines);
-                            // only update progressbar if complete is increased
-                            if (this.progressBar1.Value < complete)
-                            {
-                                worker.ReportProgress(complete);
-                            }
-                        }
-
+                        e.Cancel = true;
                     }
-                }
+                    else
+                    {
+                        worker.ReportProgress(complete);
+                    }
+                    return e.Cancel;
+                });
                 e.Result = dt;
             }
             catch (Exception ex)
             {
-                if (backgroundWorker1.WorkerSupportsCancellation == true)
-                {
-                    backgroundWorker1.CancelAsync();
-                }
-                MessageBox.Show(ex.Message);
-                throw;
+                throw ex;
             }
         }
 
@@ -200,382 +124,656 @@ namespace CadCsvExcg
 
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         {
-
             BackgroundWorker worker = sender as BackgroundWorker;
-
-            List<DataTable> dts = new List<DataTable>();
-
-            // DataTable dt1 = new DataTable();
-            DataTable dt2 = new DataTable();
-
             List<object> genericList = e.Argument as List<object>;
-            string[] paths1 = (string[])genericList[0];
-            string[] paths2 = (string[])genericList[1];
-
+            string[] pathList1 = (string[])genericList[0];
+            string[] pathList2 = (string[])genericList[1];
+            List<DataTable> dtList1 = new List<DataTable>();
+            List<DataTable> dtList2 = new List<DataTable>();
             CSVConfig config1 = new CSVConfig(1);
             CSVConfig config2 = new CSVConfig(2);
-            // CSVConfig outputConfig = new CSVConfig(3);
-
-            bool exclude = !!Properties.Settings.Default.output_exclude;
-            int outputType = Properties.Settings.Default.output_repeat;
+            bool isExclude = !!Properties.Settings.Default.output_exclude;
             bool isInclude = !!Properties.Settings.Default.output_isinclude;
-            string include = Properties.Settings.Default.output_include;
+            string includeData = Properties.Settings.Default.output_include;
 
-            int primary1_pos, primary2_pos, quantity_pos = 0;
-            if (config1.columnQuantityPosition > 0)
+            bool isError = false;
+            DataTable errorDt = new DataTable();
+
+            // k = 0 ? 'CAD' : 'BOM'
+            for (int k = 0; k < 2; k++)
             {
-                if (config1.columnQuantityPosition > config1.columnMatchPosition)
+                List<DataTable> dtList = new List<DataTable>();
+                string[] pathList = pathList1;
+                CSVConfig config = config1;
+                if (k == 1)
                 {
-                    primary1_pos = config1.usingFilename ? 1 : 0;
-                    quantity_pos = config1.usingFilename ? 2 : 1;
+                    pathList = pathList2;
+                    config = config2;
                 }
-                else
-                {
-                    primary1_pos = config1.usingFilename ? 2 : 1;
-                    quantity_pos = config1.usingFilename ? 1 : 0;
-                }
-            }
-            else
-            {
-                primary1_pos = config1.usingFilename ? config1.columnMatchPosition : config1.columnMatchPosition - 1;
-            }
-            primary2_pos = config2.columnMatchPosition - 1;
 
-            int totalPaths = paths1.Count() + paths2.Count();
-            int currentPath = 0;
-
-            int lastColumnIndex = 0;
-            // CAD files
-            foreach (var path in (string[])genericList[0])
-            {
-                DataTable dt = new DataTable();
-                string filename = Path.GetFileNameWithoutExtension(path);
-                using (TextFieldParser reader = new TextFieldParser(path))
+                foreach (var (path, i) in pathList.Select((v, i) => (v, i)))
                 {
-                    reader.TextFieldType = FieldType.Delimited;
-                    reader.SetDelimiters(new string[] { config1.delimiter });
-                    reader.HasFieldsEnclosedInQuotes = true;
-                    long totalLines = File.ReadLines(path).Count();
-                    long currentLine = 0;
-                    while (!reader.EndOfData)
+                    string filename = System.IO.Path.GetFileNameWithoutExtension(path);
+                    DataTable dt = ReadFile(path, config.hasHeaderRow, config.delimiter, (complete) =>
                     {
                         if (worker.CancellationPending == true)
                         {
                             e.Cancel = true;
-                            break;
                         }
                         else
                         {
-                            string[] fields = reader.ReadFields();
-                            // setting empty fields to null
-                            for (int i = 0; i < fields.Length; i++)
-                            {
-                                if (fields[i] == "")
-                                {
-                                    fields[i] = null;
-                                }
-                            }
-                            // getting 2 columns (id and quantity)
-                            fields = fields.Where((_, i) => i == config1.columnMatchPosition - 1 || i == config1.columnQuantityPosition - 1).ToArray();
+                            // TODO: add calculation of total percentage
+                            worker.ReportProgress(complete);
+                        }
+                        return e.Cancel;
+                    });
+                    dt.TableName = filename;
+                    dtList.Add(dt);
+                }
 
-                            // prepending filename as column
-                            if (currentLine == 0 && config1.hasHeaderRow)
+                if (k == 0)
+                {
+                    dtList1 = dtList;
+                }
+                else
+                {
+                    dtList2 = dtList;
+                }
+            }
+
+            /* --- WORKING CAD TABLES --- */
+
+            foreach (DataTable dt in dtList1)
+            {
+                int match = config1.columnMatchPosition - 1;
+                int quantity = config1.columnQuantityPosition - 1;
+
+                // removing unnecessary columns
+                for (int i = dt.Columns.Count - 1; i >= 0; i--)
+                {
+                    if (i != match && i != quantity)
+                    {
+                        dt.Columns.RemoveAt(i);
+                    }
+                }
+
+                // renaming some columns
+                dt.Columns[quantity].ColumnName = "員数";
+
+                // removing duplicated rows and increasing quantity
+                using (DataTable tmpDt = dt.AsEnumerable().GroupBy(r => new
+                {
+                    firstColumn = r[0],
+                    match = r[match]
+                }).Select(g =>
+                {
+                    var row = g.First();
+                    row.SetField(dt.Columns[quantity].ColumnName.ToString(), g.Sum(r => Convert.ToInt32(r[quantity])).ToString());
+                    return row;
+                }).CopyToDataTable())
+                {
+                    dt.Clear();
+                    dt.Merge(tmpDt, false, MissingSchemaAction.Add);
+                }
+
+                // prepending filename as column
+                dt.Columns.Add("親品目番号").SetOrdinal(0);
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    dt.Rows[i][0] = dt.TableName;
+                }
+            }
+
+            // merging tables into one table if include option checked
+            if (isInclude)
+            {
+                using (DataTable tmp = new DataTable())
+                {
+                    foreach (DataTable dt in dtList1)
+                    {
+                        tmp.Merge(dt);
+                    }
+                    dtList1.Clear();
+                    dtList1.Add(tmp.DefaultView.ToTable(/*distinct*/ true));
+                }
+            }
+
+            /* --- WORKING BOM TABLES --- */
+
+            // merging tables into one table
+            using (DataTable tmp = new DataTable())
+            {
+                foreach (DataTable dt in dtList2)
+                {
+                    dt.Columns[0].ColumnName = "品目番号";
+                    tmp.Merge(dt);
+                }
+                dtList2.Clear();
+                dtList2.Add(tmp.DefaultView.ToTable(/*distinct*/ true));
+            }
+
+            // excluding unneccessary columns if option checked
+            if (isExclude)
+            {
+                int match = config2.columnMatchPosition - 1;
+                for (int i = dtList2.First().Columns.Count - 1; i >= 0; i--)
+                {
+                    if (i == 0 || i == match) { }
+                    else
+                    {
+                        dtList2.First().Columns.RemoveAt(i);
+                    }
+                }
+            }
+
+            /* --- JOINING TWO TABLES --- */
+
+            foreach (var (dt, i) in dtList1.Select((v, i) => (v, i)))
+            {
+                DataTable dt1 = dt.Copy();
+                DataTable dt2 = dtList2.First().Copy();
+                DataTable resultDt = new DataTable();
+                int match1, match2;
+                string outputPath;
+                // Detecting column positions to match
+                if (config1.columnQuantityPosition > config1.columnMatchPosition)
+                {
+                    match1 = 1;
+                }
+                else
+                {
+                    match1 = 2;
+                }
+                if (isExclude)
+                {
+                    match2 = 1;
+                }
+                else
+                {
+                    match2 = config2.columnMatchPosition - 1;
+                }
+
+                DataTable mergedDt = new DataTable();
+                mergedDt.Merge(dt1, false, MissingSchemaAction.Add);
+                mergedDt.Merge(dt2, false, MissingSchemaAction.Add);
+                using (DataTable tmp = mergedDt.Clone())
+                {
+                    DataTable joinedDt = (from t1 in dt1.AsEnumerable()
+                                          join t2 in dt2.AsEnumerable()
+                                          on new { ID = t1[match1] } equals new { ID = t2[match2] }
+                                          select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, match2), true)).CopyToDataTable();
+
+                    var checkDt = dt1.AsEnumerable().Except(from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[match1] equals t2[match2] select t1);
+                    if (checkDt.Any())
+                    {
+                        isError = true;
+                        MessageBox.Show("ファイル作成時にエラー発生しました。詳細はエラーファイルをご確認ください。");
+                        // ADD TO ERROR DATATABLE
+                    }
+
+
+                    resultDt.Merge(joinedDt);
+                }
+
+                if (resultDt.Rows.Count != dt1.Rows.Count)
+                {
+                    // TODO: build error table
+                    MessageBox.Show("Error" + resultDt.Rows.Count + "!=" + dt1.Rows.Count);
+                    if (i == 0)
+                    {
+                        errorDt = dt1.Clone();
+                    }
+                    /*  DataTable tmp2 = dt1.AsEnumerable().Except(
+                          from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[match1] equals t2[match2] select t1).CopyToDataTable();
+
+                          errorDt.Merge(tmp2);
+
+                      errorDt.Columns.Add("エラーコード");
+                      errorDt.Columns.Add("エラー内容");
+                      errorDt.Rows[0][3] = "01";
+                      errorDt.Rows[0][4] = "PLM品目にない構成品";
+                      Exception ex = new Exception("ファイル作成時にエラー発生しました。詳細はエラーファイルをご確認ください。");
+                      ex.Data.Add("DATA_TABLE", (DataTable)errorDt);
+                      break;
+                      throw ex;*/
+                }
+                else
+                {
+                }
+                // managing column positions 
+                resultDt.Columns[3].SetOrdinal(1);
+                resultDt.Columns[2].SetOrdinal(3);
+                if (isExclude)
+                {
+                    resultDt.Columns.RemoveAt(3);
+                }
+
+                if (isInclude && includeData != "")
+                {
+                    // adding additional rows
+                    /*DataRow dr = resultDt.NewRow();
+                    dr[0] = null;
+                    dr[1] = includeData;
+                    dr[2] = "1";
+                    resultDt.Rows.InsertAt(dr, 0);*/
+
+                    // show warning if includeData not found in tables;
+                    if (!dt2.AsEnumerable().Any(r => r[0].ToString() == includeData))
+                    {
+                        MessageBox.Show(includeData + "がPLM品目マスタに存在しません。");
+                    }
+
+                    foreach (var (path, j) in pathList1.Select((v, j) => (v, j)))
+                    {
+                        string filename = System.IO.Path.GetFileNameWithoutExtension(path);
+                    /*    DataRow r2 = resultDt.NewRow();
+                        r2[0] = includeData;
+                        r2[1] = filename;
+                        r2[2] = "1";
+                        resultDt.Rows.InsertAt(r2, j + 1);*/
+                    }
+                    outputPath = Properties.Settings.Default.output_dir + "\\" + includeData + "_out.csv";
+                } else
+                {
+                    string filename = System.IO.Path.GetFileNameWithoutExtension(pathList1[i]);
+                   /* DataRow dr = resultDt.NewRow();
+                    dr[0] = null;
+                    dr[1] = filename;
+                    dr[2] = "1";
+                    resultDt.Rows.InsertAt(dr, 0);*/
+                    outputPath = Properties.Settings.Default.output_dir + "\\" + filename + "_out.csv";
+                }
+                SaveFile(resultDt, outputPath);
+            }
+
+
+            
+
+            /*
+
+
+
+                        List<DataTable> dts = new List<DataTable>();
+
+                        // DataTable dt1 = new DataTable();
+                        DataTable dt2 = new DataTable();
+
+                        string[] paths1 = (string[])genericList[0];
+                        string[] paths2 = (string[])genericList[1];
+
+
+                        // CSVConfig outputConfig = new CSVConfig(3);
+
+                        bool exclude = !!Properties.Settings.Default.output_exclude;
+                        int outputType = Properties.Settings.Default.output_repeat;
+
+                        string include = Properties.Settings.Default.output_include;
+
+                        int primary1_pos, primary2_pos, quantity_pos = 0;
+                        if (config1.columnQuantityPosition > 0)
+                        {
+                            if (config1.columnQuantityPosition > config1.columnMatchPosition)
                             {
-                                fields = PrependNewField(fields, (string)config1.columnFilenameText);
+                                primary1_pos = config1.usingFilename ? 1 : 0;
+                                quantity_pos = config1.usingFilename ? 2 : 1;
                             }
                             else
                             {
-                                fields = PrependNewField(fields, (string)filename);
+                                primary1_pos = config1.usingFilename ? 2 : 1;
+                                quantity_pos = config1.usingFilename ? 1 : 0;
                             }
+                        }
+                        else
+                        {
+                            primary1_pos = config1.usingFilename ? config1.columnMatchPosition : config1.columnMatchPosition - 1;
+                        }
+                        primary2_pos = config2.columnMatchPosition - 1;
 
-                            // setting header
-                            if (currentLine == 0)
+                        int totalPaths = paths1.Count() + paths2.Count();
+                        int currentPath = 0;
+
+                        int lastColumnIndex = 0;
+                        // CAD files
+                        foreach (var path in (string[])genericList[0])
+                        {
+                            DataTable dt = new DataTable();
+                            string filename = System.IO.Path.GetFileNameWithoutExtension(path);
+                            using (TextFieldParser reader = new TextFieldParser(path))
                             {
-                                foreach (var (field, i) in fields.Select((v, i) => (v, i + 1)))
+                                reader.TextFieldType = FieldType.Delimited;
+                                reader.SetDelimiters(new string[] { config1.delimiter });
+                                reader.HasFieldsEnclosedInQuotes = true;
+                                long totalLines = File.ReadLines(path).Count();
+                                long currentLine = 0;
+                                while (!reader.EndOfData)
                                 {
-                                    string columnText = "桁";
-                                    if (i == 1)
+                                    if (worker.CancellationPending == true)
                                     {
-                                        columnText = "親品目番号";
-                                    }
-                                    else if (i == primary1_pos + 1)
-                                    {
-                                        columnText = field;
-                                    }
-                                    else if (i == quantity_pos + 1)
-                                    {
-                                        columnText = "員数";
+                                        e.Cancel = true;
+                                        break;
                                     }
                                     else
                                     {
-                                        columnText += i;
-                                        lastColumnIndex = i;
-                                    }
-                                    DataColumn dc = new DataColumn(columnText)
-                                    {
-                                        AllowDBNull = true
-                                    };
-                                    dt.Columns.Add(dc);
-                                }
+                                        string[] fields = reader.ReadFields();
+                                        // setting empty fields to null
+                                        for (int i = 0; i < fields.Length; i++)
+                                        {
+                                            if (fields[i] == "")
+                                            {
+                                                fields[i] = null;
+                                            }
+                                        }
+                                        // getting 2 columns (id and quantity)
+                                        fields = fields.Where((_, i) => i == config1.columnMatchPosition - 1 || i == config1.columnQuantityPosition - 1).ToArray();
 
-                                if (!config1.hasHeaderRow)
-                                {
-                                    dt.Rows.Add(fields);
+                                        // prepending filename as column
+                                        if (currentLine == 0 && config1.hasHeaderRow)
+                                        {
+                                            fields = PrependNewField(fields, (string)config1.columnFilenameText);
+                                        }
+                                        else
+                                        {
+                                            fields = PrependNewField(fields, (string)filename);
+                                        }
+
+                                        // setting header
+                                        if (currentLine == 0)
+                                        {
+                                            foreach (var (field, i) in fields.Select((v, i) => (v, i + 1)))
+                                            {
+                                                string columnText = "桁";
+                                                if (i == 1)
+                                                {
+                                                    columnText = "親品目番号";
+                                                }
+                                                else if (i == primary1_pos + 1)
+                                                {
+                                                    columnText = field;
+                                                }
+                                                else if (i == quantity_pos + 1)
+                                                {
+                                                    columnText = "員数";
+                                                }
+                                                else
+                                                {
+                                                    columnText += i;
+                                                    lastColumnIndex = i;
+                                                }
+                                                DataColumn dc = new DataColumn(columnText)
+                                                {
+                                                    AllowDBNull = true
+                                                };
+                                                dt.Columns.Add(dc);
+                                            }
+
+                                            if (!config1.hasHeaderRow)
+                                            {
+                                                dt.Rows.Add(fields);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            switch (outputType)
+                                            {
+                                                case 2:
+                                                    var quantity = Convert.ToInt32(fields[quantity_pos]);
+                                                    if (quantity > 1)
+                                                    {
+                                                        string[] newFields = new string[fields.Length];
+                                                        fields.CopyTo(newFields, 0);
+                                                        newFields[quantity_pos] = "1";
+                                                        for (int i = 0; i < quantity; i++)
+                                                        {
+                                                            dt.Rows.Add(newFields);
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        dt.Rows.Add(fields);
+                                                    }
+                                                    break;
+                                                default:
+                                                    dt.Rows.Add(fields);
+                                                    break;
+                                            }
+                                        }
+                                        currentLine = reader.LineNumber;
+                                        int complete = (int)Math.Round((double)(100 * currentLine) / totalLines / totalPaths + (100 * currentPath - 1) / totalPaths);
+                                        if (this.progressBar1.Value < complete)
+                                        {
+                                            worker.ReportProgress(complete);
+                                        }
+                                    }
                                 }
+                            }
+                            if (currentPath == 0)
+                            {
+                                dts.Add(dt);
                             }
                             else
                             {
-                                switch (outputType)
+                                if (isInclude)
                                 {
-                                    case 2:
-                                        var quantity = Convert.ToInt32(fields[quantity_pos]);
-                                        if (quantity > 1)
+                                    dts.First().Merge(dt);
+                                }
+                                else
+                                {
+                                    dts.Add(dt);
+                                }
+                            }
+                            currentPath++;
+                        }
+                        // BOM files
+                        foreach (var path in (string[])genericList[1])
+                        {
+                            DataTable dt = new DataTable();
+                            string filename = System.IO.Path.GetFileNameWithoutExtension(path);
+                            using (TextFieldParser reader = new TextFieldParser(path))
+                            {
+                                reader.TextFieldType = FieldType.Delimited;
+                                reader.SetDelimiters(new string[] { config2.delimiter });
+                                reader.HasFieldsEnclosedInQuotes = true;
+                                long totalLines = File.ReadLines(path).Count();
+                                long currentLine = 0;
+                                while (!reader.EndOfData)
+                                {
+                                    if (worker.CancellationPending == true)
+                                    {
+                                        e.Cancel = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        string[] fields = reader.ReadFields();
+                                        for (int i = 0; i < fields.Length; i++)
                                         {
-                                            string[] newFields = new string[fields.Length];
-                                            fields.CopyTo(newFields, 0);
-                                            newFields[quantity_pos] = "1";
-                                            for (int i = 0; i < quantity; i++)
+                                            if (fields[i] == "")
                                             {
-                                                dt.Rows.Add(newFields);
+                                                fields[i] = null;
+                                            }
+                                        }
+                                        if (exclude == true)
+                                        {
+                                            fields = fields.Where((_, i) => i == 0 || i == primary2_pos).ToArray();
+                                        }
+                                        if (currentLine == 0)
+                                        {
+                                            bool duplicated = false;
+                                            if (config2.hasHeaderRow && fields.Length != fields.Distinct().Count())
+                                            {
+                                                duplicated = true;
+                                            }
+                                            foreach (var (field, i) in fields.Select((v, i) => (v, i + 1)))
+                                            {
+                                                string columnText = "桁";
+                                                if (i == 1)
+                                                {
+                                                    columnText = "品目番号";
+                                                }
+                                                else if (i == primary2_pos + 1)
+                                                {
+                                                    columnText = field;
+                                                }
+                                                else
+                                                {
+                                                    if (config2.hasHeaderRow && !duplicated)
+                                                    {
+                                                        columnText = field;
+                                                    }
+                                                    else
+                                                    {
+                                                        columnText += (lastColumnIndex + i);
+                                                    }
+                                                }
+                                                DataColumn dc = new DataColumn(columnText)
+                                                {
+                                                    AllowDBNull = true
+                                                };
+                                                dt.Columns.Add(dc);
+                                            }
+                                            if (!config2.hasHeaderRow)
+                                            {
+                                                dt.Rows.Add(fields);
                                             }
                                         }
                                         else
                                         {
                                             dt.Rows.Add(fields);
                                         }
-                                        break;
-                                    default:
-                                        dt.Rows.Add(fields);
-                                        break;
-                                }
-                            }
-                            currentLine = reader.LineNumber;
-                            int complete = (int)Math.Round((double)(100 * currentLine) / totalLines / totalPaths + (100 * currentPath - 1) / totalPaths);
-                            if (this.progressBar1.Value < complete)
-                            {
-                                worker.ReportProgress(complete);
-                            }
-                        }
-                    }
-                }
-                if (isInclude || currentPath == 0)
-                {
-                    dts.Add(dt);
-                }
-                else
-                {
-                    dts.First().Merge(dt);
-                }
-                currentPath++;
-            }
-            // BOM files
-            foreach (var path in (string[])genericList[1])
-            {
-                DataTable dt = new DataTable();
-                string filename = Path.GetFileNameWithoutExtension(path);
-                using (TextFieldParser reader = new TextFieldParser(path))
-                {
-                    reader.TextFieldType = FieldType.Delimited;
-                    reader.SetDelimiters(new string[] { config2.delimiter });
-                    reader.HasFieldsEnclosedInQuotes = true;
-                    long totalLines = File.ReadLines(path).Count();
-                    long currentLine = 0;
-                    while (!reader.EndOfData)
-                    {
-                        if (worker.CancellationPending == true)
-                        {
-                            e.Cancel = true;
-                            break;
-                        }
-                        else
-                        {
-                            string[] fields = reader.ReadFields();
-                            for (int i = 0; i < fields.Length; i++)
-                            {
-                                if (fields[i] == "")
-                                {
-                                    fields[i] = null;
-                                }
-                            }
-                            if (exclude == true)
-                            {
-                                fields = fields.Where((_, i) => i == 0 || i == primary2_pos).ToArray();
-                            }
-                            if (currentLine == 0)
-                            {
-                                bool duplicated = false;
-                                if (config2.hasHeaderRow && fields.Length != fields.Distinct().Count())
-                                {
-                                    duplicated = true;
-                                }
-                                foreach (var (field, i) in fields.Select((v, i) => (v, i + 1)))
-                                {
-                                    string columnText = "桁";
-                                    if (i == 1)
-                                    {
-                                        columnText = "品目番号";
-                                    }
-                                    else if (i == primary2_pos + 1)
-                                    {
-                                        columnText = field;
-                                    }
-                                    else
-                                    {
-                                        if (config2.hasHeaderRow && !duplicated)
+
+                                        currentLine = reader.LineNumber;
+                                        int complete = (int)Math.Round((double)(100 * currentLine) / totalLines / totalPaths + (100 * currentPath - 1) / totalPaths);
+                                        if (this.progressBar1.Value < complete)
                                         {
-                                            columnText = field;
-                                        }
-                                        else
-                                        {
-                                            columnText += (lastColumnIndex + i);
+                                            worker.ReportProgress(complete);
                                         }
                                     }
-                                    DataColumn dc = new DataColumn(columnText)
-                                    {
-                                        AllowDBNull = true
-                                    };
-                                    dt.Columns.Add(dc);
                                 }
-                                if (!config2.hasHeaderRow)
+                            }
+                            dt2.Merge(dt);
+                            currentPath++;
+                        }
+                        // updating primary pos of table2
+                        primary2_pos = exclude ? 1 : primary2_pos;
+
+                        DateTime now = DateTime.Now;
+                        Delimiter delimiter = (Delimiter)Properties.Settings.Default.output_delimiter;
+                        Encoding encoding = ((Encoder)Properties.Settings.Default.output_encoding).GetEncoding();
+                        int filecount = 0;
+
+                        // Removing duplicated rows from dt2
+                        DataTable tmpDt2 = dt2.DefaultView.ToTable( *//*distinct*//* true);
+                        dt2.Clear();
+                        dt2.Merge(tmpDt2, false, MissingSchemaAction.Add);
+
+                        bool isError = false;
+
+                        // merging two tables into one
+                        foreach (var dt1 in dts)
+                        {
+                            // merging duplicated rows of CAD and increasing quantity
+                            if (outputType == 1)
+                            {
+                                DataTable tmpDt = dt1.AsEnumerable().GroupBy(r => new
                                 {
-                                    dt.Rows.Add(fields);
-                                }
+                                    fname = r[0],
+                                    match = r[primary1_pos]
+                                }).Select(g =>
+                                {
+                                    var row = g.First();
+                                    row.SetField(dt1.Columns[quantity_pos].ColumnName.ToString(), g.Sum(r => Convert.ToInt32(r[quantity_pos])).ToString());
+                                    return row;
+                                }).CopyToDataTable();
+                                dt1.Clear();
+                                dt1.Merge(tmpDt, false, MissingSchemaAction.Add);
+                            }
+
+                            DataTable mergedDt = new DataTable();
+                            mergedDt.Merge(dt1, false, MissingSchemaAction.Add);
+                            mergedDt.Merge(dt2, false, MissingSchemaAction.Add);
+                            DataTable tmp = mergedDt.Clone();
+                            DataTable resultDt = tmp.Clone();
+
+                            // outer join two tables
+                            DataTable joinedDt = (from t1 in dt1.AsEnumerable()
+                                                  join t2 in dt2.AsEnumerable()
+                                                  on new { ID = t1[primary1_pos] } equals new { ID = t2[primary2_pos] }
+                                                  select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, primary2_pos), true)).CopyToDataTable();
+
+                            if (joinedDt.Rows.Count != dt1.Rows.Count)
+                            {
+                                DataTable errorDt = dt1.AsEnumerable().Except(
+                                    from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[primary1_pos] equals t2[primary2_pos] select t1).CopyToDataTable();
+
+                                errorDt.Columns.Add("エラーコード");
+                                errorDt.Columns.Add("エラー内容");
+                                errorDt.Rows[0][3] = "01";
+                                errorDt.Rows[0][4] = "PLM品目にない構成品";
+                                Exception ex = new Exception("CADファイルに、PLM品目にない構成品が存在しています。");
+                                ex.Data.Add("DATA_TABLE", (DataTable)errorDt);
+                                throw ex;
                             }
                             else
                             {
-                                dt.Rows.Add(fields);
-                            }
+                                resultDt.Merge(joinedDt);
+                                // swapping column
+                                resultDt.Columns[3].SetOrdinal(1);
+                                resultDt.Columns[2].SetOrdinal(3);
 
-                            currentLine = reader.LineNumber;
-                            int complete = (int)Math.Round((double)(100 * currentLine) / totalLines / totalPaths + (100 * currentPath - 1) / totalPaths);
-                            if (this.progressBar1.Value < complete)
-                            {
-                                worker.ReportProgress(complete);
-                            }
-                        }
-                    }
-                }
-                dt2.Merge(dt);
-                currentPath++;
-            }
-            // updating primary pos of table2
-            primary2_pos = exclude ? 1 : primary2_pos;
-
-            DateTime now = DateTime.Now;
-            Delimiter delimiter = (Delimiter)Properties.Settings.Default.output_delimiter;
-            Encoding encoding = ((Encoder)Properties.Settings.Default.output_encoding).GetEncoding();
-            int filecount = 0;
-
-            // Removing duplicated rows from dt2
-            DataTable tmpDt2 = dt2.DefaultView.ToTable( /*distinct*/ true);
-            dt2.Clear();
-            dt2.Merge(tmpDt2, false, MissingSchemaAction.Add);
-
-            // merging two tables into one
-            foreach (var dt1 in dts)
-            {
-                // merge duplicated rows of CAD and increase quantity
-                if (outputType == 1)
-                {
-                    DataTable tmpDt = dt1.AsEnumerable().GroupBy(r => new
-                    {
-                        fname = r[0],
-                        match = r[primary1_pos]
-                    }).Select(g =>
-                    {
-                        var row = g.First();
-                        row.SetField(dt1.Columns[quantity_pos].ColumnName.ToString(), g.Sum(r => Convert.ToInt32(r[quantity_pos])).ToString());
-                        return row;
-                    }).CopyToDataTable();
-                    dt1.Clear();
-                    dt1.Merge(tmpDt, false, MissingSchemaAction.Add);
-                }
-
-                DataTable mergedDt = new DataTable();
-                mergedDt.Merge(dt1, false, MissingSchemaAction.Add);
-                mergedDt.Merge(dt2, false, MissingSchemaAction.Add);
-                DataTable tmp = mergedDt.Clone();
-                DataTable resultDt = tmp.Clone();
-
-                // outer join two tables
-                DataTable joinedDt = (from t1 in dt1.AsEnumerable()
-                                      join t2 in dt2.AsEnumerable()
-                                      on new { ID = t1[primary1_pos] } equals new { ID = t2[primary2_pos] }
-                                      select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, primary2_pos), true)).CopyToDataTable();
-
-                if (joinedDt.Rows.Count != dt1.Rows.Count)
-                {
-                    DataTable errorDt = dt1.AsEnumerable().Except(
-                        from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[primary1_pos] equals t2[primary2_pos] select t1).CopyToDataTable();
-
-                    errorDt.Columns.Add("エラーコード");
-                    errorDt.Columns.Add("エラー内容");
-                    errorDt.Rows[0][3] = "01";
-                    errorDt.Rows[0][4] = "PLM品目にない構成品";
-                    Exception ex = new Exception("CADファイルに、PLM品目にない構成品が存在しています。");
-                    ex.Data.Add("DATA_TABLE", (DataTable)errorDt);
-                    throw ex;
-                }
-                else
-                {
-                    resultDt.Merge(joinedDt);
-                    // swapping column
-                    resultDt.Columns[3].SetOrdinal(1);
-                    resultDt.Columns[2].SetOrdinal(3);
-
-                    if (exclude == true)
-                    {
-                        resultDt.Columns.RemoveAt(3);
-                    }
-
-                    if (include != null && include.Length > 0)
-                    {
-                        DataRow dr = resultDt.NewRow();
-                        dr[0] = null;
-                        dr[1] = include;
-                        dr[2] = "1";
-                        resultDt.Rows.InsertAt(dr, 0);
-
-                        // show warning if INCLUDED DATA not found;
-                        if (!dt2.AsEnumerable().Any(r => r[0].ToString() == include))
-                        {
-                            MessageBox.Show(include + "がPLM品目マスタに存在しません。", "Warning");
-                        }
-
-
-                        foreach (var (path, i) in paths1.Select((v, i) => (v, i)))
-                        {
-                            string filename = Path.GetFileNameWithoutExtension(path);
-                            if (isInclude)
-                            {
-                                if (i == filecount)
+                                if (exclude == true)
                                 {
-                                    DataRow r2 = resultDt.NewRow();
-                                    r2[0] = include;
-                                    r2[1] = filename;
-                                    r2[2] = "1";
-                                    resultDt.Rows.InsertAt(r2, 1);
+                                    resultDt.Columns.RemoveAt(3);
                                 }
-                            } else
-                            {
-                                DataRow r2 = resultDt.NewRow();
-                                r2[0] = include;
-                                r2[1] = filename;
-                                r2[2] = "1";
-                                resultDt.Rows.InsertAt(r2, i + 1);
+
+                                if (include != null && include.Length > 0)
+                                {
+                                    DataRow dr = resultDt.NewRow();
+                                    dr[0] = null;
+                                    dr[1] = include;
+                                    dr[2] = "1";
+                                    resultDt.Rows.InsertAt(dr, 0);
+
+                                    // show warning if INCLUDED DATA not found;
+                                    if (!dt2.AsEnumerable().Any(r => r[0].ToString() == include))
+                                    {
+                                        MessageBox.Show(include + "がPLM品目マスタに存在しません。", "Warning");
+                                    }
+
+                                    foreach (var (path, i) in paths1.Select((v, i) => (v, i)))
+                                    {
+                                        string filename = System.IO.Path.GetFileNameWithoutExtension(path);
+                                        if (isInclude)
+                                        {
+                                            if (i == filecount)
+                                            {
+                                                DataRow r2 = resultDt.NewRow();
+                                                r2[0] = include;
+                                                r2[1] = filename;
+                                                r2[2] = "1";
+                                                resultDt.Rows.InsertAt(r2, 1);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            DataRow r2 = resultDt.NewRow();
+                                            r2[0] = include;
+                                            r2[1] = filename;
+                                            r2[2] = "1";
+                                            resultDt.Rows.InsertAt(r2, i + 1);
+                                        }
+                                    }
+                                }
+                                string outputPath = Properties.Settings.Default.output_dir + "\\" + include + "_out.csv";
+                                if (dts.Count() > 1)
+                                {
+                                    string filename = System.IO.Path.GetFileNameWithoutExtension(paths1[filecount]);
+                                    outputPath = Properties.Settings.Default.output_dir + "\\" + filename + "_out.csv";
+                                    filecount++;
+                                }
+                                SaveFile(resultDt, outputPath, encoding, delimiter);
                             }
                         }
-                    }
-                    string outputPath = Properties.Settings.Default.output_dir + "\\" + now.ToString("ddMMyyyyHHmmss") + ".csv";
-                    if (dts.Count() > 1)
-                    {
-                        outputPath = Properties.Settings.Default.output_dir + "\\" + now.ToString("ddMMyyyyHHmmss") + "-" + filecount + ".csv";
-                        filecount++;
-                    }
-                    SaveFile(resultDt, outputPath, encoding, delimiter);
-                }
-            }
-            e.Result = "success";
+                        e.Result = "success";*/
         }
 
         private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -587,7 +785,7 @@ namespace CadCsvExcg
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             DateTime now = DateTime.Now;
-            string outputErrorPath = Properties.Settings.Default.output_dir + "\\" + "error_" + now.ToString("ddMMyyyyHHmmss") + ".csv";
+            string outputErrorPath = Properties.Settings.Default.output_dir + "\\" + "error(" + now.ToString("yyyyMMddHHmmss") + ").csv";
             Delimiter delimiter = (Delimiter)Properties.Settings.Default.output_delimiter;
             Encoding encoding = ((Encoder)Properties.Settings.Default.output_encoding).GetEncoding();
 
@@ -601,16 +799,15 @@ namespace CadCsvExcg
                 MessageBox.Show(e.Error.Message, "Error");
                 lblResult.Text = "Error: " + e.Error.Message;
                 DataTable dt = (DataTable)e.Error.Data["DATA_TABLE"];
-                SaveFile(dt, outputErrorPath, encoding, delimiter);
+                SaveFile(dt, outputErrorPath);
             }
             else
             {
                 progressBar1.Value = progressBar1.Maximum;
-                lblResult.Text = "Done!";
+                lblResult.Text = "ファイル作成成功しました。";
                 button1.Enabled = false;
                 try
                 {
-                    MessageBox.Show("File saved to the output directory.", "Finished");
                     var fullPath = System.IO.Path.GetFullPath(Properties.Settings.Default.output_dir);
                     Process.Start("explorer.exe", @"" + fullPath + "");
                 }
@@ -637,14 +834,88 @@ namespace CadCsvExcg
             return result;
         }
 
-        private DataTable ReadFile(string dir, Encoding encoding, Delimiter delimiter)
+        private static DataTable ReadFile(string path, bool isHeader, string delimiter, Func<int, bool> fn)
         {
             DataTable dt = new DataTable();
+            long totalLines = File.ReadLines(path).Count();
+            using (TextFieldParser reader = new TextFieldParser(path))
+            {
+                reader.TextFieldType = FieldType.Delimited;
+                reader.SetDelimiters(new string[] { delimiter });
+                reader.HasFieldsEnclosedInQuotes = true;
+                long currentLine = 0;
+                int totalComplete = 0;
+                while (!reader.EndOfData)
+                {
+                    string[] fields = reader.ReadFields();
+                    for (int i = 0; i < fields.Length; i++)
+                    {
+                        if (fields[i] == "")
+                        {
+                            fields[i] = null;
+                        }
+                    }
+                    if (currentLine == 0)
+                    {
+                        bool isDuplicatedColumnName = fields.Length != fields.Distinct().Count();
+                        foreach (var (field, i) in fields.Select((v, i) => (v, i)))
+                        {
+                            string columnName = "column";
+                            if (!isHeader)
+                            {
+                                columnName += "_" + i;
+                            }
+                            else if (isDuplicatedColumnName)
+                            {
+                                columnName += "_" + i;
+                            }
+                            else
+                            {
+                                columnName = field;
+                            }
+
+                            DataColumn dc = new DataColumn(columnName)
+                            {
+                                AllowDBNull = true
+                            };
+                            dt.Columns.Add(dc);
+                        }
+                        if (!isHeader || isDuplicatedColumnName)
+                        {
+                            dt.Rows.Add(fields);
+                        }
+                    }
+                    else
+                    {
+                        dt.Rows.Add(fields);
+                    }
+                    currentLine = reader.LineNumber;
+                    int currentComplete = (int)Math.Round((double)(100 * currentLine / totalLines));
+                    if (currentComplete > totalComplete)
+                    {
+                        totalComplete = currentComplete;
+                        if (fn(totalComplete))
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
             return dt;
         }
 
-        private void SaveFile(DataTable dt, string dir, Encoding encoding, Delimiter delimiter)
+        private void SaveFile(DataTable dt, string dir)
         {
+            Delimiter delimiter = (Delimiter)Properties.Settings.Default.output_delimiter;
+            Encoding encoding = ((Encoder)Properties.Settings.Default.output_encoding).GetEncoding();
+            if (File.Exists(dir))
+            {
+                string filename = System.IO.Path.GetFileName(dir);
+                if (MessageBox.Show(filename + " は既に存在しています。上書きしてもよろしいでしょうか", "", MessageBoxButtons.YesNo) != DialogResult.Yes)
+                {
+                    return;
+                }
+            }
             using (Stream s = File.Create(dir))
             {
                 StreamWriter sw = new StreamWriter(s, encoding);
