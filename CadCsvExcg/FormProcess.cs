@@ -134,7 +134,7 @@ namespace CadCsvExcg
             CSVConfig config2 = new CSVConfig(2);
             bool isExclude = !!Properties.Settings.Default.output_exclude;
             bool isInclude = !!Properties.Settings.Default.output_isinclude;
-            string includeData = Properties.Settings.Default.output_include;
+            string includeData = "CT-" + Properties.Settings.Default.output_include;
 
             bool isError = false;
             DataTable errorDt = new DataTable();
@@ -204,7 +204,7 @@ namespace CadCsvExcg
                 using (DataTable tmpDt = dt.AsEnumerable().GroupBy(r => new
                 {
                     firstColumn = r[0],
-                    match = r[match]
+                    matchColumn = r[match]
                 }).Select(g =>
                 {
                     var row = g.First();
@@ -239,17 +239,24 @@ namespace CadCsvExcg
             }
 
             /* --- WORKING BOM TABLES --- */
-
             // merging tables into one table
             using (DataTable tmp = new DataTable())
             {
+                int match = config2.columnMatchPosition - 1;
                 foreach (DataTable dt in dtList2)
                 {
                     dt.Columns[0].ColumnName = "品目番号";
                     tmp.Merge(dt);
                 }
-                dtList2.Clear();
-                dtList2.Add(tmp.DefaultView.ToTable(/*distinct*/ true));
+                using (DataTable tmp2 = tmp.AsEnumerable().GroupBy(r => new
+                {
+                    firstColumn = r[0],
+                    matchColumn = r[match]
+                }).Select(g => g.First()).CopyToDataTable())
+                {
+                    dtList2.Clear();
+                    dtList2.Add(tmp2.DefaultView.ToTable(/*distinct*/ true));
+                }
             }
 
             // excluding unneccessary columns if option checked
@@ -267,7 +274,6 @@ namespace CadCsvExcg
             }
 
             /* --- JOINING TWO TABLES --- */
-
             foreach (var (dt, i) in dtList1.Select((v, i) => (v, i)))
             {
                 DataTable dt1 = dt.Copy();
@@ -292,107 +298,133 @@ namespace CadCsvExcg
                 {
                     match2 = config2.columnMatchPosition - 1;
                 }
+                // Building error table
+                if (i == 0)
+                {
+                    errorDt = dt1.Clone();
+                    errorDt.Columns.Add("エラーコード");
+                    errorDt.Columns.Add("エラー内容");
+                }
 
                 DataTable mergedDt = new DataTable();
                 mergedDt.Merge(dt1, false, MissingSchemaAction.Add);
                 mergedDt.Merge(dt2, false, MissingSchemaAction.Add);
                 using (DataTable tmp = mergedDt.Clone())
                 {
-                    DataTable joinedDt = (from t1 in dt1.AsEnumerable()
-                                          join t2 in dt2.AsEnumerable()
-                                          on new { ID = t1[match1] } equals new { ID = t2[match2] }
-                                          select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, match2), true)).CopyToDataTable();
+                    var joinedDt = (from t1 in dt1.AsEnumerable()
+                                    join t2 in dt2.AsEnumerable()
+                                    on new { ID = t1[match1] } equals new { ID = t2[match2] }
+                                    select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, match2), true));
 
                     var checkDt = dt1.AsEnumerable().Except(from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[match1] equals t2[match2] select t1);
+                    var checkDt2 = joinedDt.GroupBy(r => new { matchColumn = r[match1] }).Where(a => a.Count() > 1).Select(s => s);
+                    
                     if (checkDt.Any())
                     {
                         isError = true;
-                        MessageBox.Show("ファイル作成時にエラー発生しました。詳細はエラーファイルをご確認ください。");
-                        // ADD TO ERROR DATATABLE
+                        using (DataTable tmp2 = checkDt.CopyToDataTable())
+                        {
+                            tmp2.Columns.Add("エラーコード");
+                            tmp2.Columns.Add("エラー内容");
+                            foreach (DataRow r in tmp2.Rows)
+                            {
+                                r[3] = "01"; ;
+                                r[4] = "PLM品目にない構成品。";
+                            }
+                            errorDt.Merge(tmp2.DefaultView.ToTable(/*distinct*/ true), false, MissingSchemaAction.Add);
+                        }
+
                     }
-
-
-                    resultDt.Merge(joinedDt);
-                }
-
-                if (resultDt.Rows.Count != dt1.Rows.Count)
-                {
-                    // TODO: build error table
-                    MessageBox.Show("Error" + resultDt.Rows.Count + "!=" + dt1.Rows.Count);
-                    if (i == 0)
+                    if (checkDt2.Any())
                     {
-                        errorDt = dt1.Clone();
+                        isError = true;
+                        using (DataTable tmp2 = checkDt2.First().CopyToDataTable())
+                        {
+                            for (var j = tmp2.Columns.Count - 1; j >= 0 ; j--)
+                            {
+                                if (j > 2)
+                                {
+                                    tmp2.Columns.RemoveAt(j);
+                                }
+                            }
+                            tmp2.Columns.Add("エラーコード");
+                            tmp2.Columns.Add("エラー内容");
+                            foreach (DataRow r in tmp2.Rows)
+                            {
+                                r[3] = "02"; ;
+                                r[4] = "構成品がPLM品目マスタに重複されています。";
+                            }
+                            errorDt.Merge(tmp2.DefaultView.ToTable(/*distinct*/ true), false, MissingSchemaAction.Add);
+                        }
                     }
-                    /*  DataTable tmp2 = dt1.AsEnumerable().Except(
-                          from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[match1] equals t2[match2] select t1).CopyToDataTable();
 
-                          errorDt.Merge(tmp2);
-
-                      errorDt.Columns.Add("エラーコード");
-                      errorDt.Columns.Add("エラー内容");
-                      errorDt.Rows[0][3] = "01";
-                      errorDt.Rows[0][4] = "PLM品目にない構成品";
-                      Exception ex = new Exception("ファイル作成時にエラー発生しました。詳細はエラーファイルをご確認ください。");
-                      ex.Data.Add("DATA_TABLE", (DataTable)errorDt);
-                      break;
-                      throw ex;*/
-                }
-                else
-                {
-                }
-                // managing column positions 
-                resultDt.Columns[3].SetOrdinal(1);
-                resultDt.Columns[2].SetOrdinal(3);
-                if (isExclude)
-                {
-                    resultDt.Columns.RemoveAt(3);
-                }
-
-                if (isInclude && includeData != "")
-                {
-                    // adding additional rows
-                    /*DataRow dr = resultDt.NewRow();
-                    dr[0] = null;
-                    dr[1] = includeData;
-                    dr[2] = "1";
-                    resultDt.Rows.InsertAt(dr, 0);*/
-
-                    // show warning if includeData not found in tables;
-                    if (!dt2.AsEnumerable().Any(r => r[0].ToString() == includeData))
+                    if (!isError)
                     {
-                        MessageBox.Show(includeData + "がPLM品目マスタに存在しません。");
+                        resultDt.Merge(joinedDt.CopyToDataTable());
+                    }
+                }
+
+                if (!isError)
+                {
+                    // managing column positions 
+                    resultDt.Columns[3].SetOrdinal(1);
+                    resultDt.Columns[2].SetOrdinal(3);
+
+                    if (isExclude)
+                    {
+                        resultDt.Columns.RemoveAt(3);
                     }
 
-                    foreach (var (path, j) in pathList1.Select((v, j) => (v, j)))
+                    if (isInclude && includeData != "")
                     {
-                        string filename = System.IO.Path.GetFileNameWithoutExtension(path);
-                    /*    DataRow r2 = resultDt.NewRow();
-                        r2[0] = includeData;
-                        r2[1] = filename;
-                        r2[2] = "1";
-                        resultDt.Rows.InsertAt(r2, j + 1);*/
+                        // adding additional rows
+                        DataRow dr = resultDt.NewRow();
+                        dr[0] = null;
+                        dr[1] = includeData;
+                        dr[2] = "1";
+                        resultDt.Rows.InsertAt(dr, 0);
+
+                        // show warning if includeData not found in tables;
+                        if (!dt2.AsEnumerable().Any(r => r[0].ToString() == includeData))
+                        {
+                            MessageBox.Show(includeData + "がPLM品目マスタに存在しません。");
+                        }
+
+                        foreach (var (path, j) in pathList1.Select((v, j) => (v, j)))
+                        {
+                            string filename = System.IO.Path.GetFileNameWithoutExtension(path);
+                            DataRow r2 = resultDt.NewRow();
+                            r2[0] = includeData;
+                            r2[1] = filename;
+                            r2[2] = "1";
+                            resultDt.Rows.InsertAt(r2, j + 1);
+                        }
+                        outputPath = Properties.Settings.Default.output_dir + "\\" + includeData + "_out.csv";
                     }
-                    outputPath = Properties.Settings.Default.output_dir + "\\" + includeData + "_out.csv";
-                } else
-                {
-                    string filename = System.IO.Path.GetFileNameWithoutExtension(pathList1[i]);
-                   /* DataRow dr = resultDt.NewRow();
-                    dr[0] = null;
-                    dr[1] = filename;
-                    dr[2] = "1";
-                    resultDt.Rows.InsertAt(dr, 0);*/
-                    outputPath = Properties.Settings.Default.output_dir + "\\" + filename + "_out.csv";
+                    else
+                    {
+                        string filename = System.IO.Path.GetFileNameWithoutExtension(pathList1[i]);
+                        DataRow dr = resultDt.NewRow();
+                        dr[0] = null;
+                        dr[1] = filename;
+                        dr[2] = "1";
+                        resultDt.Rows.InsertAt(dr, 0);
+                        outputPath = Properties.Settings.Default.output_dir + "\\" + filename + "_out.csv";
+                    }
+                    SaveFile(resultDt, outputPath);
                 }
-                SaveFile(resultDt, outputPath);
+            }
+
+            if (isError)
+            {
+                DateTime now = DateTime.Now;
+                string outputErrorPath = Properties.Settings.Default.output_dir + "\\" + "error_" + now.ToString("yyyyMMddHHmmss") + ".csv";
+                SaveFile(errorDt, outputErrorPath);
+                MessageBox.Show(" ファイル作成時にエラー発生しました。詳細はエラーファイルをご確認ください。");
             }
 
 
-            
-
             /*
-
-
-
                         List<DataTable> dts = new List<DataTable>();
 
                         // DataTable dt1 = new DataTable();
@@ -784,11 +816,6 @@ namespace CadCsvExcg
 
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            DateTime now = DateTime.Now;
-            string outputErrorPath = Properties.Settings.Default.output_dir + "\\" + "error(" + now.ToString("yyyyMMddHHmmss") + ").csv";
-            Delimiter delimiter = (Delimiter)Properties.Settings.Default.output_delimiter;
-            Encoding encoding = ((Encoder)Properties.Settings.Default.output_encoding).GetEncoding();
-
             if (e.Cancelled == true)
             {
                 MessageBox.Show("Canceled");
@@ -798,8 +825,6 @@ namespace CadCsvExcg
             {
                 MessageBox.Show(e.Error.Message, "Error");
                 lblResult.Text = "Error: " + e.Error.Message;
-                DataTable dt = (DataTable)e.Error.Data["DATA_TABLE"];
-                SaveFile(dt, outputErrorPath);
             }
             else
             {

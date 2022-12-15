@@ -252,27 +252,33 @@ namespace CadCsvExcg
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            using (FormProcess frm = new FormProcess())
+            if (this.txt_output_include.Text.Length > 0 && IsDigitsOnly(this.txt_output_include.Text))
             {
-                List<string> paths1 = new List<string>();
-                List<string> paths2 = new List<string>();
-                foreach (ListViewItem item in lv_cad.Items)
+                using (FormProcess frm = new FormProcess())
                 {
-                    string file = item.SubItems[1].Text;
-                    paths1.Add(file);
+                    List<string> paths1 = new List<string>();
+                    List<string> paths2 = new List<string>();
+                    foreach (ListViewItem item in lv_cad.Items)
+                    {
+                        string file = item.SubItems[1].Text;
+                        paths1.Add(file);
+                    }
+                    foreach (ListViewItem item in lv_bom.Items)
+                    {
+                        string file = item.SubItems[1].Text;
+                        paths2.Add(file);
+                    }
+                    List<object> args = new List<object>
+                    {
+                        paths1.ToArray<string>(),
+                        paths2.ToArray<string>(),
+                    };
+                    frm.Combine(args);
+                    frm.ShowDialog();
                 }
-                foreach (ListViewItem item in lv_bom.Items)
-                {
-                    string file = item.SubItems[1].Text;
-                    paths2.Add(file);
-                }
-                List<object> args = new List<object>
-                {
-                    paths1.ToArray<string>(),
-                    paths2.ToArray<string>(),
-                };
-                frm.Combine(args);
-                frm.ShowDialog();
+            } else
+            {
+                MessageBox.Show("Invalid arguments");
             }
         }
 
@@ -412,6 +418,17 @@ namespace CadCsvExcg
         {
             this.txt_output_include.Enabled = this.cb_output_include.Checked;
             SaveConfigure(sender, e);
+        }
+
+        bool IsDigitsOnly(string str)
+        {
+            foreach (char c in str)
+            {
+                if (c < '0' || c > '9')
+                    return false;
+            }
+
+            return true;
         }
     }
 }

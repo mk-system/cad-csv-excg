@@ -90,6 +90,8 @@ namespace CadCsvExcg
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.fbdOutput = new System.Windows.Forms.FolderBrowserDialog();
+            this.tableLayoutPanel11 = new System.Windows.Forms.TableLayoutPanel();
+            this.label8 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -109,6 +111,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_id_pos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_quantity_pos)).BeginInit();
+            this.tableLayoutPanel11.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -214,8 +217,8 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.Controls.Add(this.rdo_output_option3, 0, 13);
             this.tableLayoutPanel8.Controls.Add(this.cb_output_exclude, 0, 15);
             this.tableLayoutPanel8.Controls.Add(this.label7, 0, 10);
-            this.tableLayoutPanel8.Controls.Add(this.txt_output_include, 0, 18);
             this.tableLayoutPanel8.Controls.Add(this.cb_output_include, 0, 17);
+            this.tableLayoutPanel8.Controls.Add(this.tableLayoutPanel11, 0, 18);
             this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel8.Location = new System.Drawing.Point(3, 16);
             this.tableLayoutPanel8.Name = "tableLayoutPanel8";
@@ -238,7 +241,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel8.Size = new System.Drawing.Size(182, 596);
             this.tableLayoutPanel8.TabIndex = 0;
@@ -398,9 +401,9 @@ namespace CadCsvExcg
             // 
             this.txt_output_include.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txt_output_include.Location = new System.Drawing.Point(3, 370);
+            this.txt_output_include.Location = new System.Drawing.Point(33, 3);
             this.txt_output_include.Name = "txt_output_include";
-            this.txt_output_include.Size = new System.Drawing.Size(176, 20);
+            this.txt_output_include.Size = new System.Drawing.Size(140, 20);
             this.txt_output_include.TabIndex = 17;
             this.txt_output_include.TextChanged += new System.EventHandler(this.SaveConfigure);
             // 
@@ -931,6 +934,33 @@ namespace CadCsvExcg
             this.columnHeader5.Text = "ファイルサイズ";
             this.columnHeader5.Width = 100;
             // 
+            // tableLayoutPanel11
+            // 
+            this.tableLayoutPanel11.ColumnCount = 2;
+            this.tableLayoutPanel11.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel11.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel11.Controls.Add(this.label8, 0, 0);
+            this.tableLayoutPanel11.Controls.Add(this.txt_output_include, 1, 0);
+            this.tableLayoutPanel11.Location = new System.Drawing.Point(3, 370);
+            this.tableLayoutPanel11.Name = "tableLayoutPanel11";
+            this.tableLayoutPanel11.RowCount = 1;
+            this.tableLayoutPanel11.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel11.Size = new System.Drawing.Size(176, 24);
+            this.tableLayoutPanel11.TabIndex = 19;
+            // 
+            // label8
+            // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(3, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(24, 26);
+            this.label8.TabIndex = 0;
+            this.label8.Text = "CT-";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -967,6 +997,8 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_id_pos)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_quantity_pos)).EndInit();
+            this.tableLayoutPanel11.ResumeLayout(false);
+            this.tableLayoutPanel11.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1035,6 +1067,8 @@ namespace CadCsvExcg
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox txt_output_include;
         private System.Windows.Forms.CheckBox cb_output_include;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel11;
+        private System.Windows.Forms.Label label8;
     }
 }
 
