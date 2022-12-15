@@ -252,7 +252,7 @@ namespace CadCsvExcg
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (this.txt_output_include.Text.Length > 0 && IsDigitsOnly(this.txt_output_include.Text))
+            if ((this.txt_output_include.Text.Length > 0 && IsDigitsOnly(this.txt_output_include.Text)) || !this.cb_output_include.Checked)
             {
                 using (FormProcess frm = new FormProcess())
                 {
