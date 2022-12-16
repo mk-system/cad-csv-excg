@@ -6,14 +6,8 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
-using System.Windows.Shapes;
 
 namespace CadCsvExcg
 {
@@ -72,7 +66,7 @@ namespace CadCsvExcg
                 List<object> genericList = e.Argument as List<object>;
                 string path = (string)genericList[0];
                 CSVConfig config = new CSVConfig((int)genericList[1]);
-                DataTable dt = ReadFile(path, config.hasHeaderRow, config.delimiter, (complete) =>
+                DataTable dt = ReadFile(path, config.hasHeaderRow, config.delimiter, 0, (complete) =>
                 {
                     if (worker.CancellationPending == true)
                     {
@@ -128,6 +122,8 @@ namespace CadCsvExcg
             List<object> genericList = e.Argument as List<object>;
             string[] pathList1 = (string[])genericList[0];
             string[] pathList2 = (string[])genericList[1];
+            Array.Sort(pathList1);
+            Array.Sort(pathList2);
             List<DataTable> dtList1 = new List<DataTable>();
             List<DataTable> dtList2 = new List<DataTable>();
             CSVConfig config1 = new CSVConfig(1);
@@ -139,7 +135,9 @@ namespace CadCsvExcg
             bool isError = false;
             DataTable errorDt = new DataTable();
 
-            // k = 0 ? 'CAD' : 'BOM'
+            long pathsCount = pathList1.Count() + pathList2.Count();
+
+            // reading files. k = 0 ? 'CAD' : 'BOM'
             for (int k = 0; k < 2; k++)
             {
                 List<DataTable> dtList = new List<DataTable>();
@@ -154,7 +152,7 @@ namespace CadCsvExcg
                 foreach (var (path, i) in pathList.Select((v, i) => (v, i)))
                 {
                     string filename = System.IO.Path.GetFileNameWithoutExtension(path);
-                    DataTable dt = ReadFile(path, config.hasHeaderRow, config.delimiter, (complete) =>
+                    DataTable dt = ReadFile(path, config.hasHeaderRow, config.delimiter, k == 0 ? 0 : pathList1.Count(), (complete) =>
                     {
                         if (worker.CancellationPending == true)
                         {
@@ -162,8 +160,8 @@ namespace CadCsvExcg
                         }
                         else
                         {
-                            // TODO: add calculation of total percentage
-                            worker.ReportProgress(complete);
+                            if((int)(complete / pathsCount) > this.progressBar1.Value)
+                            worker.ReportProgress((int)(complete / pathsCount));
                         }
                         return e.Cancel;
                     });
@@ -188,6 +186,10 @@ namespace CadCsvExcg
                 int match = config1.columnMatchPosition - 1;
                 int quantity = config1.columnQuantityPosition - 1;
 
+                // renaming some columns
+                dt.Columns[match].ColumnName = "部品型式";
+                dt.Columns[quantity].ColumnName = "員数";
+
                 // removing unnecessary columns
                 for (int i = dt.Columns.Count - 1; i >= 0; i--)
                 {
@@ -197,8 +199,17 @@ namespace CadCsvExcg
                     }
                 }
 
-                // renaming some columns
-                dt.Columns[quantity].ColumnName = "員数";
+                // re-defining columns position
+                if (quantity > match)
+                {
+                    match = 0;
+                    quantity = 1;
+                }
+                else
+                {
+                    match = 1;
+                    quantity = 0;
+                }
 
                 // removing duplicated rows and increasing quantity
                 using (DataTable tmpDt = dt.AsEnumerable().GroupBy(r => new
@@ -243,9 +254,11 @@ namespace CadCsvExcg
             using (DataTable tmp = new DataTable())
             {
                 int match = config2.columnMatchPosition - 1;
+                
                 foreach (DataTable dt in dtList2)
                 {
                     dt.Columns[0].ColumnName = "品目番号";
+                    dt.Columns[match].ColumnName = "部品型式";
                     tmp.Merge(dt);
                 }
                 using (DataTable tmp2 = tmp.AsEnumerable().GroupBy(r => new
@@ -317,7 +330,7 @@ namespace CadCsvExcg
                                     select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, match2), true));
 
                     var checkDt = dt1.AsEnumerable().Except(from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[match1] equals t2[match2] select t1);
-                    var checkDt2 = joinedDt.GroupBy(r => new { matchColumn = r[match1] }).Where(a => a.Count() > 1).Select(s => s);
+                    var checkDt2 = joinedDt.GroupBy(r => new { firstColumn = r[0], matchColumn = r[match1] }).Where(a => a.Count() > 1).Select(s => s);
                     
                     if (checkDt.Any())
                     {
@@ -859,7 +872,7 @@ namespace CadCsvExcg
             return result;
         }
 
-        private static DataTable ReadFile(string path, bool isHeader, string delimiter, Func<int, bool> fn)
+        private static DataTable ReadFile(string path, bool isHeader, string delimiter, int startIndex, Func<int, bool> fn)
         {
             DataTable dt = new DataTable();
             long totalLines = File.ReadLines(path).Count();
@@ -888,11 +901,11 @@ namespace CadCsvExcg
                             string columnName = "column";
                             if (!isHeader)
                             {
-                                columnName += "_" + i;
+                                columnName += "_" + startIndex + i;
                             }
                             else if (isDuplicatedColumnName)
                             {
-                                columnName += "_" + i;
+                                columnName += "_" + startIndex + i;
                             }
                             else
                             {

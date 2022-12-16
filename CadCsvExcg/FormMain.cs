@@ -278,7 +278,7 @@ namespace CadCsvExcg
                 }
             } else
             {
-                MessageBox.Show("Invalid arguments");
+                MessageBox.Show("最上位品目番号を指定してください");
             }
         }
 
