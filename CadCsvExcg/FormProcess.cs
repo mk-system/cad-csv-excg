@@ -128,6 +128,7 @@ namespace CadCsvExcg
             List<DataTable> dtList2 = new List<DataTable>();
             CSVConfig config1 = new CSVConfig(1);
             CSVConfig config2 = new CSVConfig(2);
+            CSVConfig config3 = new CSVConfig(3);
             bool isExclude = !!Properties.Settings.Default.output_exclude;
             bool isInclude = !!Properties.Settings.Default.output_isinclude;
             string includeData = "CT-" + Properties.Settings.Default.output_include;
@@ -180,7 +181,6 @@ namespace CadCsvExcg
             }
 
             /* --- WORKING CAD TABLES --- */
-
             foreach (DataTable dt in dtList1)
             {
                 int match = config1.columnMatchPosition - 1;
@@ -294,7 +294,7 @@ namespace CadCsvExcg
                 DataTable resultDt = new DataTable();
                 int match1, match2;
                 string outputPath;
-                // Detecting column positions to match
+                // Detecting columns position to match
                 if (config1.columnQuantityPosition > config1.columnMatchPosition)
                 {
                     match1 = 1;
@@ -311,7 +311,7 @@ namespace CadCsvExcg
                 {
                     match2 = config2.columnMatchPosition - 1;
                 }
-                // Building error table
+                // building error table
                 if (i == 0)
                 {
                     errorDt = dt1.Clone();
@@ -1003,6 +1003,11 @@ namespace CadCsvExcg
         public string columnFilenameText;
         public int columnMatchPosition;
         public int columnQuantityPosition;
+        public bool isExclude;
+        public bool isInclude;
+        public string includeData;
+        public string outputDelimiter;
+        public string encoding;
 
         public CSVConfig(int configurationNumber)
         {

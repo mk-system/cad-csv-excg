@@ -49,8 +49,10 @@ namespace CadCsvExcg
             this.rdo_output_option3 = new System.Windows.Forms.RadioButton();
             this.cb_output_exclude = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.txt_output_include = new System.Windows.Forms.TextBox();
             this.cb_output_include = new System.Windows.Forms.CheckBox();
+            this.tableLayoutPanel11 = new System.Windows.Forms.TableLayoutPanel();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txt_output_include = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.grpBom = new System.Windows.Forms.GroupBox();
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
@@ -90,13 +92,12 @@ namespace CadCsvExcg
             this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.fbdOutput = new System.Windows.Forms.FolderBrowserDialog();
-            this.tableLayoutPanel11 = new System.Windows.Forms.TableLayoutPanel();
-            this.label8 = new System.Windows.Forms.Label();
             this.statusStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.grpSettings.SuspendLayout();
             this.tableLayoutPanel8.SuspendLayout();
+            this.tableLayoutPanel11.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
             this.grpBom.SuspendLayout();
             this.tableLayoutPanel6.SuspendLayout();
@@ -111,7 +112,6 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_id_pos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_quantity_pos)).BeginInit();
-            this.tableLayoutPanel11.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -134,7 +134,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel1.CellBorderStyle = System.Windows.Forms.TableLayoutPanelCellBorderStyle.Inset;
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 250F));
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 1, 0);
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -153,14 +153,14 @@ namespace CadCsvExcg
             this.tableLayoutPanel2.Controls.Add(this.btn_exit, 0, 2);
             this.tableLayoutPanel2.Controls.Add(this.grpSettings, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(585, 5);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(535, 5);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 3;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(194, 679);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(244, 679);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // btn_start
@@ -169,7 +169,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_start.Location = new System.Drawing.Point(3, 624);
             this.btn_start.Name = "btn_start";
-            this.btn_start.Size = new System.Drawing.Size(188, 23);
+            this.btn_start.Size = new System.Drawing.Size(238, 23);
             this.btn_start.TabIndex = 2;
             this.btn_start.TabStop = false;
             this.btn_start.Text = "ファイル作成";
@@ -182,7 +182,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_exit.Location = new System.Drawing.Point(3, 653);
             this.btn_exit.Name = "btn_exit";
-            this.btn_exit.Size = new System.Drawing.Size(188, 23);
+            this.btn_exit.Size = new System.Drawing.Size(238, 23);
             this.btn_exit.TabIndex = 6;
             this.btn_exit.TabStop = false;
             this.btn_exit.Text = "閉じる";
@@ -195,7 +195,7 @@ namespace CadCsvExcg
             this.grpSettings.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpSettings.Location = new System.Drawing.Point(3, 3);
             this.grpSettings.Name = "grpSettings";
-            this.grpSettings.Size = new System.Drawing.Size(188, 615);
+            this.grpSettings.Size = new System.Drawing.Size(238, 615);
             this.grpSettings.TabIndex = 7;
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "ファイル作成設定";
@@ -243,7 +243,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel8.Size = new System.Drawing.Size(182, 596);
+            this.tableLayoutPanel8.Size = new System.Drawing.Size(232, 596);
             this.tableLayoutPanel8.TabIndex = 0;
             // 
             // label3
@@ -253,7 +253,7 @@ namespace CadCsvExcg
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(3, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(176, 17);
+            this.label3.Size = new System.Drawing.Size(226, 17);
             this.label3.TabIndex = 4;
             this.label3.Text = "アウトプットフォルダ：";
             this.label3.UseCompatibleTextRendering = true;
@@ -264,7 +264,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_selectDir.Location = new System.Drawing.Point(3, 20);
             this.btn_selectDir.Name = "btn_selectDir";
-            this.btn_selectDir.Size = new System.Drawing.Size(176, 23);
+            this.btn_selectDir.Size = new System.Drawing.Size(226, 23);
             this.btn_selectDir.TabIndex = 6;
             this.btn_selectDir.TabStop = false;
             this.btn_selectDir.Text = "フォルダ指定";
@@ -278,7 +278,7 @@ namespace CadCsvExcg
             this.lbtn_output_dir.AutoSize = true;
             this.lbtn_output_dir.Location = new System.Drawing.Point(3, 46);
             this.lbtn_output_dir.Name = "lbtn_output_dir";
-            this.lbtn_output_dir.Size = new System.Drawing.Size(176, 13);
+            this.lbtn_output_dir.Size = new System.Drawing.Size(226, 13);
             this.lbtn_output_dir.TabIndex = 7;
             this.lbtn_output_dir.TabStop = true;
             this.lbtn_output_dir.Text = "C:\\\\csv_ouputs";
@@ -291,7 +291,7 @@ namespace CadCsvExcg
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(3, 79);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(176, 13);
+            this.label5.Size = new System.Drawing.Size(226, 13);
             this.label5.TabIndex = 8;
             this.label5.Text = "エンコード指定：";
             // 
@@ -303,7 +303,7 @@ namespace CadCsvExcg
             this.ddl_output_encoding.FormattingEnabled = true;
             this.ddl_output_encoding.Location = new System.Drawing.Point(3, 95);
             this.ddl_output_encoding.Name = "ddl_output_encoding";
-            this.ddl_output_encoding.Size = new System.Drawing.Size(176, 21);
+            this.ddl_output_encoding.Size = new System.Drawing.Size(226, 21);
             this.ddl_output_encoding.TabIndex = 9;
             this.ddl_output_encoding.SelectedIndexChanged += new System.EventHandler(this.SaveConfigure);
             // 
@@ -314,7 +314,7 @@ namespace CadCsvExcg
             this.lblDelimiter3.AutoSize = true;
             this.lblDelimiter3.Location = new System.Drawing.Point(3, 139);
             this.lblDelimiter3.Name = "lblDelimiter3";
-            this.lblDelimiter3.Size = new System.Drawing.Size(176, 13);
+            this.lblDelimiter3.Size = new System.Drawing.Size(226, 13);
             this.lblDelimiter3.TabIndex = 10;
             this.lblDelimiter3.Text = "区切文字：";
             // 
@@ -326,7 +326,7 @@ namespace CadCsvExcg
             this.ddl_output_delimiter.FormattingEnabled = true;
             this.ddl_output_delimiter.Location = new System.Drawing.Point(3, 155);
             this.ddl_output_delimiter.Name = "ddl_output_delimiter";
-            this.ddl_output_delimiter.Size = new System.Drawing.Size(176, 21);
+            this.ddl_output_delimiter.Size = new System.Drawing.Size(226, 21);
             this.ddl_output_delimiter.TabIndex = 11;
             this.ddl_output_delimiter.SelectedIndexChanged += new System.EventHandler(this.SaveConfigure);
             // 
@@ -338,7 +338,7 @@ namespace CadCsvExcg
             this.rdo_output_option1.Enabled = false;
             this.rdo_output_option1.Location = new System.Drawing.Point(3, 215);
             this.rdo_output_option1.Name = "rdo_output_option1";
-            this.rdo_output_option1.Size = new System.Drawing.Size(176, 17);
+            this.rdo_output_option1.Size = new System.Drawing.Size(226, 17);
             this.rdo_output_option1.TabIndex = 12;
             this.rdo_output_option1.Text = "そのまま";
             this.rdo_output_option1.UseVisualStyleBackColor = true;
@@ -352,7 +352,7 @@ namespace CadCsvExcg
             this.rdo_output_option2.Checked = true;
             this.rdo_output_option2.Location = new System.Drawing.Point(3, 238);
             this.rdo_output_option2.Name = "rdo_output_option2";
-            this.rdo_output_option2.Size = new System.Drawing.Size(176, 17);
+            this.rdo_output_option2.Size = new System.Drawing.Size(226, 17);
             this.rdo_output_option2.TabIndex = 13;
             this.rdo_output_option2.TabStop = true;
             this.rdo_output_option2.Text = "員数まとめ";
@@ -367,7 +367,7 @@ namespace CadCsvExcg
             this.rdo_output_option3.Enabled = false;
             this.rdo_output_option3.Location = new System.Drawing.Point(3, 261);
             this.rdo_output_option3.Name = "rdo_output_option3";
-            this.rdo_output_option3.Size = new System.Drawing.Size(176, 17);
+            this.rdo_output_option3.Size = new System.Drawing.Size(226, 17);
             this.rdo_output_option3.TabIndex = 14;
             this.rdo_output_option3.Text = "員数分解";
             this.rdo_output_option3.UseVisualStyleBackColor = true;
@@ -380,9 +380,9 @@ namespace CadCsvExcg
             this.cb_output_exclude.AutoSize = true;
             this.cb_output_exclude.Location = new System.Drawing.Point(3, 304);
             this.cb_output_exclude.Name = "cb_output_exclude";
-            this.cb_output_exclude.Size = new System.Drawing.Size(176, 17);
+            this.cb_output_exclude.Size = new System.Drawing.Size(226, 17);
             this.cb_output_exclude.TabIndex = 15;
-            this.cb_output_exclude.Text = "ファイルに品目属性を追加";
+            this.cb_output_exclude.Text = "作成ファイルに品目属性を追加しない";
             this.cb_output_exclude.UseVisualStyleBackColor = true;
             this.cb_output_exclude.CheckedChanged += new System.EventHandler(this.SaveConfigure);
             // 
@@ -393,19 +393,9 @@ namespace CadCsvExcg
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(3, 199);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(176, 13);
+            this.label7.Size = new System.Drawing.Size(226, 13);
             this.label7.TabIndex = 16;
             this.label7.Text = "構成出力オプション：";
-            // 
-            // txt_output_include
-            // 
-            this.txt_output_include.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txt_output_include.Location = new System.Drawing.Point(33, 3);
-            this.txt_output_include.Name = "txt_output_include";
-            this.txt_output_include.Size = new System.Drawing.Size(140, 20);
-            this.txt_output_include.TabIndex = 17;
-            this.txt_output_include.TextChanged += new System.EventHandler(this.SaveConfigure);
             // 
             // cb_output_include
             // 
@@ -414,11 +404,49 @@ namespace CadCsvExcg
             this.cb_output_include.AutoSize = true;
             this.cb_output_include.Location = new System.Drawing.Point(3, 347);
             this.cb_output_include.Name = "cb_output_include";
-            this.cb_output_include.Size = new System.Drawing.Size(176, 17);
+            this.cb_output_include.Size = new System.Drawing.Size(226, 17);
             this.cb_output_include.TabIndex = 18;
             this.cb_output_include.Text = "最上位品目（CT）を指定";
             this.cb_output_include.UseVisualStyleBackColor = true;
             this.cb_output_include.CheckedChanged += new System.EventHandler(this.cb_output_include_CheckedChanged);
+            // 
+            // tableLayoutPanel11
+            // 
+            this.tableLayoutPanel11.ColumnCount = 2;
+            this.tableLayoutPanel11.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.tableLayoutPanel11.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel11.Controls.Add(this.label8, 0, 0);
+            this.tableLayoutPanel11.Controls.Add(this.txt_output_include, 1, 0);
+            this.tableLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel11.Location = new System.Drawing.Point(3, 370);
+            this.tableLayoutPanel11.Name = "tableLayoutPanel11";
+            this.tableLayoutPanel11.RowCount = 1;
+            this.tableLayoutPanel11.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel11.Size = new System.Drawing.Size(226, 24);
+            this.tableLayoutPanel11.TabIndex = 19;
+            // 
+            // label8
+            // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(3, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(24, 26);
+            this.label8.TabIndex = 0;
+            this.label8.Text = "CT-";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // txt_output_include
+            // 
+            this.txt_output_include.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txt_output_include.Location = new System.Drawing.Point(33, 3);
+            this.txt_output_include.Name = "txt_output_include";
+            this.txt_output_include.Size = new System.Drawing.Size(190, 20);
+            this.txt_output_include.TabIndex = 17;
+            this.txt_output_include.TextChanged += new System.EventHandler(this.SaveConfigure);
             // 
             // tableLayoutPanel3
             // 
@@ -434,7 +462,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(572, 679);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(522, 679);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
             // grpBom
@@ -443,7 +471,7 @@ namespace CadCsvExcg
             this.grpBom.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpBom.Location = new System.Drawing.Point(5, 343);
             this.grpBom.Name = "grpBom";
-            this.grpBom.Size = new System.Drawing.Size(562, 331);
+            this.grpBom.Size = new System.Drawing.Size(512, 331);
             this.grpBom.TabIndex = 1;
             this.grpBom.TabStop = false;
             this.grpBom.Text = "PLM品目ファイル";
@@ -461,7 +489,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
             this.tableLayoutPanel6.RowCount = 1;
             this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel6.Size = new System.Drawing.Size(556, 312);
+            this.tableLayoutPanel6.Size = new System.Drawing.Size(506, 312);
             this.tableLayoutPanel6.TabIndex = 0;
             // 
             // tableLayoutPanel7
@@ -644,7 +672,7 @@ namespace CadCsvExcg
             this.lv_bom.Location = new System.Drawing.Point(203, 3);
             this.lv_bom.Name = "lv_bom";
             this.lv_bom.ShowGroups = false;
-            this.lv_bom.Size = new System.Drawing.Size(350, 306);
+            this.lv_bom.Size = new System.Drawing.Size(300, 306);
             this.lv_bom.TabIndex = 1;
             this.lv_bom.TabStop = false;
             this.lv_bom.UseCompatibleStateImageBehavior = false;
@@ -673,7 +701,7 @@ namespace CadCsvExcg
             this.grpCad.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpCad.Location = new System.Drawing.Point(5, 5);
             this.grpCad.Name = "grpCad";
-            this.grpCad.Size = new System.Drawing.Size(562, 330);
+            this.grpCad.Size = new System.Drawing.Size(512, 330);
             this.grpCad.TabIndex = 0;
             this.grpCad.TabStop = false;
             this.grpCad.Text = "CAD ファイル";
@@ -691,7 +719,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(556, 311);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(506, 311);
             this.tableLayoutPanel4.TabIndex = 0;
             // 
             // tableLayoutPanel5
@@ -911,7 +939,7 @@ namespace CadCsvExcg
             this.lv_cad.Location = new System.Drawing.Point(203, 3);
             this.lv_cad.Name = "lv_cad";
             this.lv_cad.ShowGroups = false;
-            this.lv_cad.Size = new System.Drawing.Size(350, 305);
+            this.lv_cad.Size = new System.Drawing.Size(300, 305);
             this.lv_cad.TabIndex = 1;
             this.lv_cad.TabStop = false;
             this.lv_cad.UseCompatibleStateImageBehavior = false;
@@ -934,33 +962,6 @@ namespace CadCsvExcg
             this.columnHeader5.Text = "ファイルサイズ";
             this.columnHeader5.Width = 100;
             // 
-            // tableLayoutPanel11
-            // 
-            this.tableLayoutPanel11.ColumnCount = 2;
-            this.tableLayoutPanel11.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel11.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel11.Controls.Add(this.label8, 0, 0);
-            this.tableLayoutPanel11.Controls.Add(this.txt_output_include, 1, 0);
-            this.tableLayoutPanel11.Location = new System.Drawing.Point(3, 370);
-            this.tableLayoutPanel11.Name = "tableLayoutPanel11";
-            this.tableLayoutPanel11.RowCount = 1;
-            this.tableLayoutPanel11.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel11.Size = new System.Drawing.Size(176, 24);
-            this.tableLayoutPanel11.TabIndex = 19;
-            // 
-            // label8
-            // 
-            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(3, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(24, 26);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "CT-";
-            this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -972,7 +973,7 @@ namespace CadCsvExcg
             this.MinimumSize = new System.Drawing.Size(800, 750);
             this.Name = "frmMain";
             this.ShowIcon = false;
-            this.Text = "CadCsvExcg";
+            this.Text = "エレキ構成CSV作成";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -981,6 +982,8 @@ namespace CadCsvExcg
             this.grpSettings.ResumeLayout(false);
             this.tableLayoutPanel8.ResumeLayout(false);
             this.tableLayoutPanel8.PerformLayout();
+            this.tableLayoutPanel11.ResumeLayout(false);
+            this.tableLayoutPanel11.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.grpBom.ResumeLayout(false);
             this.tableLayoutPanel6.ResumeLayout(false);
@@ -997,8 +1000,6 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_id_pos)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_cad_quantity_pos)).EndInit();
-            this.tableLayoutPanel11.ResumeLayout(false);
-            this.tableLayoutPanel11.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

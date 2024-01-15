@@ -70,8 +70,8 @@ namespace CadCsvExcg
 
         private static bool CloseCancel()
         {
-            const string message = "Are you sure that you would like to close the program?";
-            const string caption = "Closing the program";
+            const string message = "作業中ですが、処理を中断してクローズしてもよろしいですか?";
+            const string caption = "クローズ処理";
             var result = MessageBox.Show(message, caption,
                                          MessageBoxButtons.YesNo,
                                          MessageBoxIcon.Question);
