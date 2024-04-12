@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Documents;
 using System.Windows.Forms;
 
 namespace CadCsvExcg
@@ -20,14 +21,13 @@ namespace CadCsvExcg
             backgroundWorker1.WorkerSupportsCancellation = true;
             backgroundWorker2.WorkerReportsProgress = true;
             backgroundWorker2.WorkerSupportsCancellation = true;
-            button1.Text = "Cancel";
         }
 
         public void Preview(List<object> args)
         {
             if (backgroundWorker1.IsBusy != true)
             {
-                button1.Click += new EventHandler(this.CancelBackgroundWorker1);
+                btnCancel.Click += new EventHandler(this.CancelBackgroundWorker1);
                 backgroundWorker1.RunWorkerAsync(args);
             }
         }
@@ -36,7 +36,7 @@ namespace CadCsvExcg
         {
             if (backgroundWorker2.IsBusy != true)
             {
-                button1.Click += new EventHandler(this.CancelBackgroundWorker2);
+                btnCancel.Click += new EventHandler(this.CancelBackgroundWorker2);
                 backgroundWorker2.RunWorkerAsync(args);
             }
         }
@@ -66,7 +66,7 @@ namespace CadCsvExcg
                 List<object> genericList = e.Argument as List<object>;
                 string path = (string)genericList[0];
                 CSVConfig config = new CSVConfig((int)genericList[1]);
-                DataTable dt = ReadFile(path, config.hasHeaderRow, config.delimiter, 0, (complete) =>
+                DataTable dataTable = ReadFile(path, config.hasHeaderRow, config.delimiter, 0, (complete) =>
                 {
                     if (worker.CancellationPending == true)
                     {
@@ -78,7 +78,7 @@ namespace CadCsvExcg
                     }
                     return e.Cancel;
                 });
-                e.Result = dt;
+                e.Result = dataTable;
             }
             catch (Exception ex)
             {
@@ -88,30 +88,31 @@ namespace CadCsvExcg
 
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            progressBar1.Value = e.ProgressPercentage;
-            lblResult.Text = (e.ProgressPercentage.ToString() + "%");
+            pbProgress.Value = e.ProgressPercentage;
+            lblStatus.Text = (e.ProgressPercentage.ToString() + "%");
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            progressBar1.Value = progressBar1.Maximum;
+            pbProgress.Value = pbProgress.Maximum;
             if (e.Cancelled == true)
             {
-                lblResult.Text = "Canceled!";
+                lblStatus.Text = "Canceled!";
 
             }
             else if (e.Error != null)
             {
-                lblResult.Text = "Error: " + e.Error.Message;
+                lblStatus.Text = "Error: " + e.Error.Message;
             }
             else
             {
-                lblResult.Text = "Done!";
-                button1.Enabled = false;
-                using (FormPreview frm = new FormPreview((DataTable)e.Result))
+                lblStatus.Text = "Done!";
+                btnCancel.Enabled = false;
+                DataTable dataTable = (DataTable)e.Result;
+             /*   using (FormPreview frm = new FormPreview(dataTable))
                 {
                     frm.ShowDialog();
-                }
+                }*/
             }
             this.Close();
         }
@@ -161,7 +162,7 @@ namespace CadCsvExcg
                         }
                         else
                         {
-                            if((int)(complete / pathsCount) > this.progressBar1.Value)
+                            if((int)(complete / pathsCount) > this.pbProgress.Value)
                             worker.ReportProgress((int)(complete / pathsCount));
                         }
                         return e.Cancel;
@@ -188,7 +189,7 @@ namespace CadCsvExcg
 
                 // renaming some columns
                 dt.Columns[match].ColumnName = "部品型式";
-                dt.Columns[quantity].ColumnName = "員数";
+                dt.Columns[quantity].ColumnName = "員数"; // 員数: Number of members
 
                 // removing unnecessary columns
                 for (int i = dt.Columns.Count - 1; i >= 0; i--)
@@ -228,7 +229,7 @@ namespace CadCsvExcg
                 }
 
                 // prepending filename as column
-                dt.Columns.Add("親品目番号").SetOrdinal(0);
+                dt.Columns.Add("親品目番号").SetOrdinal(0); // 親品目番号: parent item number
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     dt.Rows[i][0] = dt.TableName;
@@ -257,10 +258,11 @@ namespace CadCsvExcg
                 
                 foreach (DataTable dt in dtList2)
                 {
-                    dt.Columns[0].ColumnName = "品目番号";
-                    dt.Columns[match].ColumnName = "部品型式";
+                    dt.Columns[0].ColumnName = "品目番号"; // 品目番号: number of item
+                    dt.Columns[match].ColumnName = "部品型式"; // 部品型式: parts model
                     tmp.Merge(dt);
                 }
+
                 using (DataTable tmp2 = tmp.AsEnumerable().GroupBy(r => new
                 {
                     firstColumn = r[0],
@@ -330,6 +332,7 @@ namespace CadCsvExcg
                                     select tmp.LoadDataRow(Concatenate((object[])t1.ItemArray, (object[])t2.ItemArray, match2), true));
 
                     var checkDt = dt1.AsEnumerable().Except(from t1 in dt1.AsEnumerable() join t2 in dt2.AsEnumerable() on t1[match1] equals t2[match2] select t1);
+                    
                     var checkDt2 = joinedDt.GroupBy(r => new { firstColumn = r[0], matchColumn = r[match1] }).Where(a => a.Count() > 1).Select(s => s);
                     
                     if (checkDt.Any())
@@ -433,7 +436,7 @@ namespace CadCsvExcg
                 DateTime now = DateTime.Now;
                 string outputErrorPath = Properties.Settings.Default.output_dir + "\\" + "error_" + now.ToString("yyyyMMddHHmmss") + ".csv";
                 SaveFile(errorDt, outputErrorPath);
-                MessageBox.Show(" ファイル作成時にエラー発生しました。詳細はエラーファイルをご確認ください。");
+                MessageBox.Show("ファイル作成時にエラー発生しました。詳細はエラーファイルをご確認ください。");
             }
 
 
@@ -823,8 +826,8 @@ namespace CadCsvExcg
 
         private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            progressBar1.Value = e.ProgressPercentage;
-            lblResult.Text = (e.ProgressPercentage.ToString() + "%");
+            pbProgress.Value = e.ProgressPercentage;
+            lblStatus.Text = (e.ProgressPercentage.ToString() + "%");
         }
 
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -832,18 +835,18 @@ namespace CadCsvExcg
             if (e.Cancelled == true)
             {
                 MessageBox.Show("Canceled");
-                lblResult.Text = "Canceled!";
+                lblStatus.Text = "Canceled!";
             }
             else if (e.Error != null)
             {
                 MessageBox.Show(e.Error.Message, "Error");
-                lblResult.Text = "Error: " + e.Error.Message;
+                lblStatus.Text = "Error: " + e.Error.Message;
             }
             else
             {
-                progressBar1.Value = progressBar1.Maximum;
-                lblResult.Text = "ファイル作成成功しました。";
-                button1.Enabled = false;
+                pbProgress.Value = pbProgress.Maximum;
+                lblStatus.Text = "ファイル作成成功しました。";
+                btnCancel.Enabled = false;
                 try
                 {
                     var fullPath = System.IO.Path.GetFullPath(Properties.Settings.Default.output_dir);
@@ -874,8 +877,10 @@ namespace CadCsvExcg
 
         private static DataTable ReadFile(string path, bool isHeader, string delimiter, int startIndex, Func<int, bool> fn)
         {
-            DataTable dt = new DataTable();
+            DataTable dataTable = new DataTable();
+
             long totalLines = File.ReadLines(path).Count();
+
             using (TextFieldParser reader = new TextFieldParser(path))
             {
                 reader.TextFieldType = FieldType.Delimited;
@@ -886,49 +891,51 @@ namespace CadCsvExcg
                 while (!reader.EndOfData)
                 {
                     string[] fields = reader.ReadFields();
-                    for (int i = 0; i < fields.Length; i++)
+
+                    /*for (int i = 0; i < fields.Length; i++)
                     {
                         if (fields[i] == "")
                         {
                             fields[i] = null;
                         }
-                    }
+                    }*/
+
                     if (currentLine == 0)
                     {
-                        bool isDuplicatedColumnName = fields.Length != fields.Distinct().Count();
                         foreach (var (field, i) in fields.Select((v, i) => (v, i)))
                         {
-                            string columnName = "column";
-                            if (!isHeader)
+                            string caption = "column";
+
+                            if (isHeader)
                             {
-                                columnName += "_" + startIndex + i;
-                            }
-                            else if (isDuplicatedColumnName)
+                                caption = field;
+                            } else
                             {
-                                columnName += "_" + startIndex + i;
-                            }
-                            else
-                            {
-                                columnName = field;
+                                caption += "_" + (startIndex + i);
                             }
 
-                            DataColumn dc = new DataColumn(columnName)
+                            DataColumn dataColumn = new DataColumn
                             {
-                                AllowDBNull = true
+                                ColumnName = "Column_" + (startIndex + i),
+                                DataType = typeof(string),
+                                Caption = caption,
                             };
-                            dt.Columns.Add(dc);
+                            dataTable.Columns.Add(dataColumn);
                         }
-                        if (!isHeader || isDuplicatedColumnName)
+                        if (!isHeader)
                         {
-                            dt.Rows.Add(fields);
+                            dataTable.Rows.Add(fields);
                         }
                     }
                     else
                     {
-                        dt.Rows.Add(fields);
+                        dataTable.Rows.Add(fields);
                     }
+
                     currentLine = reader.LineNumber;
+
                     int currentComplete = (int)Math.Round((double)(100 * currentLine / totalLines));
+
                     if (currentComplete > totalComplete)
                     {
                         totalComplete = currentComplete;
@@ -939,7 +946,7 @@ namespace CadCsvExcg
                     }
                 }
             }
-            return dt;
+            return dataTable;
         }
 
         private void SaveFile(DataTable dt, string dir)

@@ -4,13 +4,25 @@ using System.Windows.Forms;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Data;
+using System.ComponentModel;
+using System.Text;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Globalization;
+using CsvHelper;
+using CsvHelper.Configuration;
+using CsvHelper.Configuration.Attributes;
+using System.Dynamic;
+using System.Windows.Input;
 
 namespace CadCsvExcg
 {
     public partial class frmMain : Form
     {
         private static bool initializeFinished = false;
+
         private bool isLoadingConfigure = false;
+
         private class ComboItem
         {
             public int ID { get; set; }
@@ -19,10 +31,13 @@ namespace CadCsvExcg
         public frmMain()
         {
             InitializeComponent();
-            ComboItem[] delimiters = new ComboItem[] {
-                new ComboItem{ ID = (int)Delimiter.COMMA, Text = "Comma ( , )" },
-                new ComboItem{ ID = (int)Delimiter.TAB, Text = "Tab (   )" },
+
+            ComboItem[] delimiters = new ComboItem[]
+            {
+                new ComboItem { ID = Delimiter.COMMA.GetIndex(), Text = Delimiter.COMMA.GetLabel() },
+                new ComboItem { ID = Delimiter.TAB.GetIndex(), Text = Delimiter.TAB.GetLabel() }
             };
+
             ComboItem[] encoders = new ComboItem[]
             {
                 new ComboItem{ ID = (int)Encoder.UTF7, Text = "UTF-7" },
@@ -31,6 +46,7 @@ namespace CadCsvExcg
                 new ComboItem{ ID = (int)Encoder.UTF16BE, Text = "UTF-16BE" },
                 new ComboItem{ ID = (int)Encoder.UTF32, Text = "UTF-32" },
             };
+
             ComboItem[] cadList = new ComboItem[]
             {
                 new ComboItem{ ID = 0, Text = "Unidraf" },
@@ -55,7 +71,7 @@ namespace CadCsvExcg
 
             this.txt_output_include.Enabled = this.cb_output_include.Checked;
 
-            LoadConfigures();
+            LoadConfigure();
             CheckCombinable();
             initializeFinished = true;
         }
@@ -76,12 +92,19 @@ namespace CadCsvExcg
                                          MessageBoxButtons.YesNo,
                                          MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
 
-        private void btnExit_Click(object sender, EventArgs e) => System.Windows.Forms.Application.Exit();
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            System.Windows.Forms.Application.Exit();
+        }
 
         private void btnAdd1_Click(object sender, EventArgs e)
         {
@@ -173,7 +196,7 @@ namespace CadCsvExcg
 
         private void CheckCombinable()
         {
-            this.btn_start.Enabled = this.lv_cad.Items.Count > 0 && this.lv_bom.Items.Count > 0;
+            // this.btn_start.Enabled = this.lv_cad.Items.Count > 0 && this.lv_bom.Items.Count > 0;
         }
 
         private void btnSelectDir_Click(object sender, EventArgs e)
@@ -232,46 +255,118 @@ namespace CadCsvExcg
                 Preview(lv_bom.SelectedItems[0].SubItems[1].Text, 2);
             }
         }
-        private void Preview(string path, int configurationNumber)
+        private void Preview(string filePath, int configurationNumber)
         {
             Loading(true);
-            using (FormProcess frm = new FormProcess())
+
+            Delimiter delimiter = configurationNumber == 1 ? (Delimiter)ddl_cad_delimiter.SelectedIndex : (Delimiter)ddl_bom_delimiter.SelectedIndex;
+            bool hasHeader = configurationNumber == 1 ? this.cb_cad_header.Checked : this.cb_bom_header.Checked;
+
+            /*using (FormPreview frm = new FormPreview(filePath, delimiter, hasHeader))
             {
-                bool isCad = configurationNumber == 1;
-                List<object> args = new List<object>
-                {
-                    path,
-                    configurationNumber,
-                    isCad
-                };
-                frm.Preview(args);
+                frm.ShowDialog();
+            }*/
+            using (FormPreview frm = new FormPreview(filePath, delimiter, hasHeader))
+            {
                 frm.ShowDialog();
             }
+
             Loading(false);
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if ((this.txt_output_include.Text.Length > 0 && IsDigitsOnly(this.txt_output_include.Text)) || !this.cb_output_include.Checked)
+            /*  if (cadWorker.IsBusy != true && bomWorker.IsBusy != true)
+              {
+                  List<string> pathList = new List<string>();
+                  foreach (ListViewItem item in lv_cad.Items)
+                  {
+                      pathList.Add(item.SubItems[1].Text);
+                  }
+                  List<object> args = new List<object>
+                  {
+                       pathList.ToArray<string>(), // pathList
+                       (Delimiter)ddl_cad_delimiter.SelectedIndex, // Delimiter
+                       cb_cad_header.Checked, // hasHeader
+                       (int)num_cad_id_pos.Value, // Index of ID Column
+                       (int)num_cad_quantity_pos.Value, // Index of Quantity Column
+                  };
+
+
+                  List<string> pathList2 = new List<string>();
+                  foreach (ListViewItem item in lv_bom.Items)
+                  {
+                      pathList2.Add(item.SubItems[1].Text);
+                  }
+                  List<object> args2 = new List<object>
+                  {
+                       pathList2.ToArray<string>(), // pathList
+                       (Delimiter)ddl_bom_delimiter.SelectedIndex, // Delimiter
+                       cb_bom_header.Checked, // hasHeader
+                       (int)num_bom_id_pos.Value, // Index of ID Column
+                       !!Properties.Settings.Default.output_exclude, // IsExclude
+                  };
+
+                  // frmProgress.ShowDialog();
+              }*/
+
+            List<string> fileList1 = new List<string>();
+            List<string> fileList2 = new List<string>();
+            foreach (ListViewItem item in lv_cad.Items)
+            {
+                string file = item.SubItems[1].Text;
+                fileList1.Add(file);
+            }
+            foreach (ListViewItem item in lv_bom.Items)
+            {
+                string file = item.SubItems[1].Text;
+                fileList2.Add(file);
+            }
+
+            Encoding encoding = ((Encoder)this.ddl_output_encoding.SelectedIndex).GetEncoding();
+
+            var formData = new FormProcessData(
+                fileList1,
+                fileList2,
+                (Delimiter)this.ddl_cad_delimiter.SelectedIndex,
+                (Delimiter)this.ddl_bom_delimiter.SelectedIndex,
+                (Delimiter)this.ddl_output_delimiter.SelectedIndex,
+                (int)this.num_cad_id_pos.Value,
+                (int)this.num_bom_id_pos.Value,
+                (int)this.num_cad_quantity_pos.Value,
+                (bool)this.cb_cad_header.Checked,
+                (bool)this.cb_bom_header.Checked,
+                (bool)this.cb_output_exclude.Checked,
+                (bool)this.cb_output_include.Checked,
+                (string)this.txt_output_include.Text,
+                (string)this.lbtn_output_dir.Text,
+                encoding
+            );
+
+            using (FormProcess2 frm = new FormProcess2(formData))
+            {
+                frm.ShowDialog();
+            }
+            /*if ((this.txt_output_include.Text.Length > 0 && Utils.IsDigitsOnly(this.txt_output_include.Text)) || !this.cb_output_include.Checked)
             {
                 using (FormProcess frm = new FormProcess())
                 {
-                    List<string> paths1 = new List<string>();
-                    List<string> paths2 = new List<string>();
+                    List<string> pathList1 = new List<string>();
+                    List<string> pathList2 = new List<string>();
                     foreach (ListViewItem item in lv_cad.Items)
                     {
                         string file = item.SubItems[1].Text;
-                        paths1.Add(file);
+                        pathList1.Add(file);
                     }
                     foreach (ListViewItem item in lv_bom.Items)
                     {
                         string file = item.SubItems[1].Text;
-                        paths2.Add(file);
+                        pathList2.Add(file);
                     }
                     List<object> args = new List<object>
                     {
-                        paths1.ToArray<string>(),
-                        paths2.ToArray<string>(),
+                        pathList1.ToArray<string>(),
+                        pathList2.ToArray<string>(),
                     };
                     frm.Combine(args);
                     frm.ShowDialog();
@@ -279,10 +374,10 @@ namespace CadCsvExcg
             } else
             {
                 MessageBox.Show("最上位品目番号を指定してください");
-            }
+            }*/
         }
 
-        private void LoadConfigures(bool cadOnly = false)
+        private void LoadConfigure(bool cadOnly = false)
         {
             isLoadingConfigure = true;
             // this.ddl_cad_type.SelectedIndex = (int)Properties.Settings.Default.cad_type;
@@ -338,7 +433,7 @@ namespace CadCsvExcg
                         break;
                 }
             }
-            
+
             isLoadingConfigure = false;
         }
 
@@ -381,10 +476,12 @@ namespace CadCsvExcg
                 if (rdo_output_option1.Checked)
                 {
                     Properties.Settings.Default.output_repeat = 0;
-                } else if (rdo_output_option2.Checked)
+                }
+                else if (rdo_output_option2.Checked)
                 {
                     Properties.Settings.Default.output_repeat = 1;
-                } else if (rdo_output_option3.Checked)
+                }
+                else if (rdo_output_option3.Checked)
                 {
                     Properties.Settings.Default.output_repeat = 2;
                 }
@@ -411,24 +508,13 @@ namespace CadCsvExcg
 
         private void ddl_cad_type_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadConfigures(true);
+            LoadConfigure(true);
         }
 
         private void cb_output_include_CheckedChanged(object sender, EventArgs e)
         {
             this.txt_output_include.Enabled = this.cb_output_include.Checked;
             SaveConfigure(sender, e);
-        }
-
-        bool IsDigitsOnly(string str)
-        {
-            foreach (char c in str)
-            {
-                if (c < '0' || c > '9')
-                    return false;
-            }
-
-            return true;
         }
     }
 }

@@ -24,5 +24,21 @@
         {
             return (int)d;
         }
+
+        public static string GetLabel(this Delimiter d)
+        {
+            string labelText = "";
+            switch (d)
+            {
+                case Delimiter.TAB:
+                    labelText = "Tab";
+                    break;
+                case Delimiter.COMMA:
+                default:
+                    labelText = "Comma";
+                    break;
+            }
+            return labelText + "( " + d.GetString() + " )";
+        }
     }
 }
