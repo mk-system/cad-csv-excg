@@ -67,6 +67,8 @@ namespace CadCsvExcg
             this.cb_bom_header = new System.Windows.Forms.CheckBox();
             this.ddl_bom_delimiter = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.num_bom_skip_pos = new System.Windows.Forms.NumericUpDown();
             this.lv_bom = new System.Windows.Forms.ListView();
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -105,6 +107,7 @@ namespace CadCsvExcg
             this.grpOptions2.SuspendLayout();
             this.tableLayoutPanel10.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_bom_id_pos)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_bom_skip_pos)).BeginInit();
             this.grpCad.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.tableLayoutPanel5.SuspendLayout();
@@ -141,7 +144,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel3, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -157,7 +160,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel2.Controls.Add(this.grpSettings, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(714, 6);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 3;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -172,7 +175,7 @@ namespace CadCsvExcg
             this.btn_start.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_start.Location = new System.Drawing.Point(4, 773);
-            this.btn_start.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_start.Margin = new System.Windows.Forms.Padding(4);
             this.btn_start.Name = "btn_start";
             this.btn_start.Size = new System.Drawing.Size(317, 28);
             this.btn_start.TabIndex = 2;
@@ -186,7 +189,7 @@ namespace CadCsvExcg
             this.btn_exit.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_exit.Location = new System.Drawing.Point(4, 809);
-            this.btn_exit.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_exit.Margin = new System.Windows.Forms.Padding(4);
             this.btn_exit.Name = "btn_exit";
             this.btn_exit.Size = new System.Drawing.Size(317, 28);
             this.btn_exit.TabIndex = 6;
@@ -200,9 +203,9 @@ namespace CadCsvExcg
             this.grpSettings.Controls.Add(this.tableLayoutPanel8);
             this.grpSettings.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpSettings.Location = new System.Drawing.Point(4, 4);
-            this.grpSettings.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSettings.Margin = new System.Windows.Forms.Padding(4);
             this.grpSettings.Name = "grpSettings";
-            this.grpSettings.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpSettings.Padding = new System.Windows.Forms.Padding(4);
             this.grpSettings.Size = new System.Drawing.Size(317, 761);
             this.grpSettings.TabIndex = 7;
             this.grpSettings.TabStop = false;
@@ -229,7 +232,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel8.Controls.Add(this.tableLayoutPanel11, 0, 18);
             this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel8.Location = new System.Drawing.Point(4, 19);
-            this.tableLayoutPanel8.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel8.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel8.Name = "tableLayoutPanel8";
             this.tableLayoutPanel8.RowCount = 20;
             this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -273,7 +276,7 @@ namespace CadCsvExcg
             this.btn_selectDir.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_selectDir.Location = new System.Drawing.Point(4, 24);
-            this.btn_selectDir.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_selectDir.Margin = new System.Windows.Forms.Padding(4);
             this.btn_selectDir.Name = "btn_selectDir";
             this.btn_selectDir.Size = new System.Drawing.Size(301, 28);
             this.btn_selectDir.TabIndex = 6;
@@ -315,7 +318,7 @@ namespace CadCsvExcg
             this.ddl_output_encoding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddl_output_encoding.FormattingEnabled = true;
             this.ddl_output_encoding.Location = new System.Drawing.Point(4, 117);
-            this.ddl_output_encoding.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.ddl_output_encoding.Margin = new System.Windows.Forms.Padding(4);
             this.ddl_output_encoding.Name = "ddl_output_encoding";
             this.ddl_output_encoding.Size = new System.Drawing.Size(301, 24);
             this.ddl_output_encoding.TabIndex = 9;
@@ -340,7 +343,7 @@ namespace CadCsvExcg
             this.ddl_output_delimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddl_output_delimiter.FormattingEnabled = true;
             this.ddl_output_delimiter.Location = new System.Drawing.Point(4, 190);
-            this.ddl_output_delimiter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.ddl_output_delimiter.Margin = new System.Windows.Forms.Padding(4);
             this.ddl_output_delimiter.Name = "ddl_output_delimiter";
             this.ddl_output_delimiter.Size = new System.Drawing.Size(301, 24);
             this.ddl_output_delimiter.TabIndex = 11;
@@ -353,7 +356,7 @@ namespace CadCsvExcg
             this.rdo_output_option1.AutoSize = true;
             this.rdo_output_option1.Enabled = false;
             this.rdo_output_option1.Location = new System.Drawing.Point(4, 263);
-            this.rdo_output_option1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rdo_output_option1.Margin = new System.Windows.Forms.Padding(4);
             this.rdo_output_option1.Name = "rdo_output_option1";
             this.rdo_output_option1.Size = new System.Drawing.Size(301, 20);
             this.rdo_output_option1.TabIndex = 12;
@@ -368,7 +371,7 @@ namespace CadCsvExcg
             this.rdo_output_option2.AutoSize = true;
             this.rdo_output_option2.Checked = true;
             this.rdo_output_option2.Location = new System.Drawing.Point(4, 291);
-            this.rdo_output_option2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rdo_output_option2.Margin = new System.Windows.Forms.Padding(4);
             this.rdo_output_option2.Name = "rdo_output_option2";
             this.rdo_output_option2.Size = new System.Drawing.Size(301, 20);
             this.rdo_output_option2.TabIndex = 13;
@@ -384,7 +387,7 @@ namespace CadCsvExcg
             this.rdo_output_option3.AutoSize = true;
             this.rdo_output_option3.Enabled = false;
             this.rdo_output_option3.Location = new System.Drawing.Point(4, 319);
-            this.rdo_output_option3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rdo_output_option3.Margin = new System.Windows.Forms.Padding(4);
             this.rdo_output_option3.Name = "rdo_output_option3";
             this.rdo_output_option3.Size = new System.Drawing.Size(301, 20);
             this.rdo_output_option3.TabIndex = 14;
@@ -398,7 +401,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cb_output_exclude.AutoSize = true;
             this.cb_output_exclude.Location = new System.Drawing.Point(4, 372);
-            this.cb_output_exclude.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cb_output_exclude.Margin = new System.Windows.Forms.Padding(4);
             this.cb_output_exclude.Name = "cb_output_exclude";
             this.cb_output_exclude.Size = new System.Drawing.Size(301, 20);
             this.cb_output_exclude.TabIndex = 15;
@@ -424,7 +427,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cb_output_include.AutoSize = true;
             this.cb_output_include.Location = new System.Drawing.Point(4, 425);
-            this.cb_output_include.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cb_output_include.Margin = new System.Windows.Forms.Padding(4);
             this.cb_output_include.Name = "cb_output_include";
             this.cb_output_include.Size = new System.Drawing.Size(301, 20);
             this.cb_output_include.TabIndex = 18;
@@ -441,7 +444,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel11.Controls.Add(this.txt_output_include, 1, 0);
             this.tableLayoutPanel11.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel11.Location = new System.Drawing.Point(4, 453);
-            this.tableLayoutPanel11.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel11.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel11.Name = "tableLayoutPanel11";
             this.tableLayoutPanel11.RowCount = 1;
             this.tableLayoutPanel11.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -467,7 +470,7 @@ namespace CadCsvExcg
             this.txt_output_include.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_output_include.Location = new System.Drawing.Point(41, 4);
-            this.txt_output_include.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.txt_output_include.Margin = new System.Windows.Forms.Padding(4);
             this.txt_output_include.Name = "txt_output_include";
             this.txt_output_include.Size = new System.Drawing.Size(256, 22);
             this.txt_output_include.TabIndex = 17;
@@ -482,7 +485,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel3.Controls.Add(this.grpCad, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(6, 6);
-            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
@@ -496,9 +499,9 @@ namespace CadCsvExcg
             this.grpBom.Controls.Add(this.tableLayoutPanel6);
             this.grpBom.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpBom.Location = new System.Drawing.Point(6, 425);
-            this.grpBom.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpBom.Margin = new System.Windows.Forms.Padding(4);
             this.grpBom.Name = "grpBom";
-            this.grpBom.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpBom.Padding = new System.Windows.Forms.Padding(4);
             this.grpBom.Size = new System.Drawing.Size(686, 410);
             this.grpBom.TabIndex = 1;
             this.grpBom.TabStop = false;
@@ -514,7 +517,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel6.Controls.Add(this.lv_bom, 1, 0);
             this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel6.Location = new System.Drawing.Point(4, 19);
-            this.tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel6.Name = "tableLayoutPanel6";
             this.tableLayoutPanel6.RowCount = 1;
             this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -531,7 +534,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel7.Controls.Add(this.grpOptions2, 0, 3);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(4, 4);
-            this.tableLayoutPanel7.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel7.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel7.Name = "tableLayoutPanel7";
             this.tableLayoutPanel7.RowCount = 4;
             this.tableLayoutPanel7.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -550,7 +553,7 @@ namespace CadCsvExcg
             this.btn_add2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_add2.Location = new System.Drawing.Point(4, 4);
-            this.btn_add2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_add2.Margin = new System.Windows.Forms.Padding(4);
             this.btn_add2.Name = "btn_add2";
             this.btn_add2.Size = new System.Drawing.Size(251, 28);
             this.btn_add2.TabIndex = 0;
@@ -565,7 +568,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_remove2.Enabled = false;
             this.btn_remove2.Location = new System.Drawing.Point(4, 40);
-            this.btn_remove2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_remove2.Margin = new System.Windows.Forms.Padding(4);
             this.btn_remove2.Name = "btn_remove2";
             this.btn_remove2.Size = new System.Drawing.Size(251, 28);
             this.btn_remove2.TabIndex = 1;
@@ -580,7 +583,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_preview2.Enabled = false;
             this.btn_preview2.Location = new System.Drawing.Point(4, 76);
-            this.btn_preview2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_preview2.Margin = new System.Windows.Forms.Padding(4);
             this.btn_preview2.Name = "btn_preview2";
             this.btn_preview2.Size = new System.Drawing.Size(251, 28);
             this.btn_preview2.TabIndex = 2;
@@ -594,9 +597,9 @@ namespace CadCsvExcg
             this.grpOptions2.Controls.Add(this.tableLayoutPanel10);
             this.grpOptions2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpOptions2.Location = new System.Drawing.Point(4, 112);
-            this.grpOptions2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpOptions2.Margin = new System.Windows.Forms.Padding(4);
             this.grpOptions2.Name = "grpOptions2";
-            this.grpOptions2.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpOptions2.Padding = new System.Windows.Forms.Padding(4);
             this.grpOptions2.Size = new System.Drawing.Size(251, 263);
             this.grpOptions2.TabIndex = 6;
             this.grpOptions2.TabStop = false;
@@ -613,17 +616,18 @@ namespace CadCsvExcg
             this.tableLayoutPanel10.Controls.Add(this.cb_bom_header, 0, 0);
             this.tableLayoutPanel10.Controls.Add(this.ddl_bom_delimiter, 1, 1);
             this.tableLayoutPanel10.Controls.Add(this.label4, 0, 1);
+            this.tableLayoutPanel10.Controls.Add(this.label9, 0, 3);
+            this.tableLayoutPanel10.Controls.Add(this.num_bom_skip_pos, 1, 3);
             this.tableLayoutPanel10.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel10.Location = new System.Drawing.Point(4, 19);
-            this.tableLayoutPanel10.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel10.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel10.Name = "tableLayoutPanel10";
-            this.tableLayoutPanel10.RowCount = 4;
+            this.tableLayoutPanel10.RowCount = 5;
+            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel10.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
             this.tableLayoutPanel10.Size = new System.Drawing.Size(243, 240);
             this.tableLayoutPanel10.TabIndex = 0;
             // 
@@ -632,7 +636,7 @@ namespace CadCsvExcg
             this.num_bom_id_pos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.num_bom_id_pos.Location = new System.Drawing.Point(125, 64);
-            this.num_bom_id_pos.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.num_bom_id_pos.Margin = new System.Windows.Forms.Padding(4);
             this.num_bom_id_pos.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -666,7 +670,7 @@ namespace CadCsvExcg
             this.cb_bom_header.BackColor = System.Drawing.SystemColors.Control;
             this.tableLayoutPanel10.SetColumnSpan(this.cb_bom_header, 2);
             this.cb_bom_header.Location = new System.Drawing.Point(4, 4);
-            this.cb_bom_header.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cb_bom_header.Margin = new System.Windows.Forms.Padding(4);
             this.cb_bom_header.Name = "cb_bom_header";
             this.cb_bom_header.Size = new System.Drawing.Size(235, 20);
             this.cb_bom_header.TabIndex = 5;
@@ -682,7 +686,7 @@ namespace CadCsvExcg
             this.ddl_bom_delimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddl_bom_delimiter.FormattingEnabled = true;
             this.ddl_bom_delimiter.Location = new System.Drawing.Point(125, 32);
-            this.ddl_bom_delimiter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.ddl_bom_delimiter.Margin = new System.Windows.Forms.Padding(4);
             this.ddl_bom_delimiter.Name = "ddl_bom_delimiter";
             this.ddl_bom_delimiter.Size = new System.Drawing.Size(114, 24);
             this.ddl_bom_delimiter.TabIndex = 4;
@@ -703,6 +707,36 @@ namespace CadCsvExcg
             this.label4.Text = "区切文字：";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // label9
+            // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(4, 90);
+            this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(113, 30);
+            this.label9.TabIndex = 14;
+            this.label9.Text = "SkipFlg Col：";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // num_bom_skip_pos
+            // 
+            this.num_bom_skip_pos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.num_bom_skip_pos.Location = new System.Drawing.Point(125, 94);
+            this.num_bom_skip_pos.Margin = new System.Windows.Forms.Padding(4);
+            this.num_bom_skip_pos.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.num_bom_skip_pos.Name = "num_bom_skip_pos";
+            this.num_bom_skip_pos.Size = new System.Drawing.Size(114, 22);
+            this.num_bom_skip_pos.TabIndex = 15;
+            this.num_bom_skip_pos.ValueChanged += new System.EventHandler(this.SaveConfigure);
+            // 
             // lv_bom
             // 
             this.lv_bom.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -716,7 +750,7 @@ namespace CadCsvExcg
             this.lv_bom.HideSelection = false;
             this.lv_bom.LabelWrap = false;
             this.lv_bom.Location = new System.Drawing.Point(271, 4);
-            this.lv_bom.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lv_bom.Margin = new System.Windows.Forms.Padding(4);
             this.lv_bom.Name = "lv_bom";
             this.lv_bom.ShowGroups = false;
             this.lv_bom.Size = new System.Drawing.Size(403, 379);
@@ -747,9 +781,9 @@ namespace CadCsvExcg
             this.grpCad.Controls.Add(this.tableLayoutPanel4);
             this.grpCad.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpCad.Location = new System.Drawing.Point(6, 6);
-            this.grpCad.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpCad.Margin = new System.Windows.Forms.Padding(4);
             this.grpCad.Name = "grpCad";
-            this.grpCad.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpCad.Padding = new System.Windows.Forms.Padding(4);
             this.grpCad.Size = new System.Drawing.Size(686, 409);
             this.grpCad.TabIndex = 0;
             this.grpCad.TabStop = false;
@@ -765,7 +799,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel4.Controls.Add(this.lv_cad, 1, 0);
             this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel4.Location = new System.Drawing.Point(4, 19);
-            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel4.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -782,7 +816,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel5.Controls.Add(this.grpOptions1, 0, 3);
             this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel5.Location = new System.Drawing.Point(4, 4);
-            this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel5.Name = "tableLayoutPanel5";
             this.tableLayoutPanel5.RowCount = 4;
             this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -798,7 +832,7 @@ namespace CadCsvExcg
             this.btn_add1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_add1.Location = new System.Drawing.Point(4, 4);
-            this.btn_add1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_add1.Margin = new System.Windows.Forms.Padding(4);
             this.btn_add1.Name = "btn_add1";
             this.btn_add1.Size = new System.Drawing.Size(251, 28);
             this.btn_add1.TabIndex = 0;
@@ -813,7 +847,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_remove1.Enabled = false;
             this.btn_remove1.Location = new System.Drawing.Point(4, 40);
-            this.btn_remove1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_remove1.Margin = new System.Windows.Forms.Padding(4);
             this.btn_remove1.Name = "btn_remove1";
             this.btn_remove1.Size = new System.Drawing.Size(251, 28);
             this.btn_remove1.TabIndex = 1;
@@ -828,7 +862,7 @@ namespace CadCsvExcg
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_preview1.Enabled = false;
             this.btn_preview1.Location = new System.Drawing.Point(4, 76);
-            this.btn_preview1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btn_preview1.Margin = new System.Windows.Forms.Padding(4);
             this.btn_preview1.Name = "btn_preview1";
             this.btn_preview1.Size = new System.Drawing.Size(251, 28);
             this.btn_preview1.TabIndex = 2;
@@ -842,9 +876,9 @@ namespace CadCsvExcg
             this.grpOptions1.Controls.Add(this.tableLayoutPanel9);
             this.grpOptions1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpOptions1.Location = new System.Drawing.Point(4, 112);
-            this.grpOptions1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpOptions1.Margin = new System.Windows.Forms.Padding(4);
             this.grpOptions1.Name = "grpOptions1";
-            this.grpOptions1.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.grpOptions1.Padding = new System.Windows.Forms.Padding(4);
             this.grpOptions1.Size = new System.Drawing.Size(251, 262);
             this.grpOptions1.TabIndex = 6;
             this.grpOptions1.TabStop = false;
@@ -866,7 +900,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.Controls.Add(this.ddl_cad_type, 0, 0);
             this.tableLayoutPanel9.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel9.Location = new System.Drawing.Point(4, 19);
-            this.tableLayoutPanel9.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel9.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel9.Name = "tableLayoutPanel9";
             this.tableLayoutPanel9.RowCount = 6;
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
@@ -874,9 +908,8 @@ namespace CadCsvExcg
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel9.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel9.Size = new System.Drawing.Size(243, 239);
             this.tableLayoutPanel9.TabIndex = 0;
             // 
@@ -915,7 +948,7 @@ namespace CadCsvExcg
             this.ddl_cad_delimiter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddl_cad_delimiter.FormattingEnabled = true;
             this.ddl_cad_delimiter.Location = new System.Drawing.Point(125, 64);
-            this.ddl_cad_delimiter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.ddl_cad_delimiter.Margin = new System.Windows.Forms.Padding(4);
             this.ddl_cad_delimiter.Name = "ddl_cad_delimiter";
             this.ddl_cad_delimiter.Size = new System.Drawing.Size(114, 24);
             this.ddl_cad_delimiter.TabIndex = 4;
@@ -927,7 +960,7 @@ namespace CadCsvExcg
             this.num_cad_id_pos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.num_cad_id_pos.Location = new System.Drawing.Point(125, 96);
-            this.num_cad_id_pos.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.num_cad_id_pos.Margin = new System.Windows.Forms.Padding(4);
             this.num_cad_id_pos.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -946,7 +979,7 @@ namespace CadCsvExcg
             this.cb_cad_header.AutoSize = true;
             this.tableLayoutPanel9.SetColumnSpan(this.cb_cad_header, 2);
             this.cb_cad_header.Location = new System.Drawing.Point(4, 36);
-            this.cb_cad_header.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cb_cad_header.Margin = new System.Windows.Forms.Padding(4);
             this.cb_cad_header.Name = "cb_cad_header";
             this.cb_cad_header.Size = new System.Drawing.Size(235, 20);
             this.cb_cad_header.TabIndex = 5;
@@ -974,7 +1007,7 @@ namespace CadCsvExcg
             this.num_cad_quantity_pos.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.num_cad_quantity_pos.Location = new System.Drawing.Point(125, 126);
-            this.num_cad_quantity_pos.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.num_cad_quantity_pos.Margin = new System.Windows.Forms.Padding(4);
             this.num_cad_quantity_pos.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -993,7 +1026,7 @@ namespace CadCsvExcg
             this.ddl_cad_type.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddl_cad_type.FormattingEnabled = true;
             this.ddl_cad_type.Location = new System.Drawing.Point(4, 4);
-            this.ddl_cad_type.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.ddl_cad_type.Margin = new System.Windows.Forms.Padding(4);
             this.ddl_cad_type.Name = "ddl_cad_type";
             this.ddl_cad_type.Size = new System.Drawing.Size(235, 24);
             this.ddl_cad_type.TabIndex = 13;
@@ -1012,7 +1045,7 @@ namespace CadCsvExcg
             this.lv_cad.HideSelection = false;
             this.lv_cad.LabelWrap = false;
             this.lv_cad.Location = new System.Drawing.Point(271, 4);
-            this.lv_cad.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lv_cad.Margin = new System.Windows.Forms.Padding(4);
             this.lv_cad.Name = "lv_cad";
             this.lv_cad.ShowGroups = false;
             this.lv_cad.Size = new System.Drawing.Size(403, 378);
@@ -1046,7 +1079,7 @@ namespace CadCsvExcg
             this.ClientSize = new System.Drawing.Size(1045, 875);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.statusStrip1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimumSize = new System.Drawing.Size(1061, 813);
             this.Name = "frmMain";
             this.ShowIcon = false;
@@ -1069,6 +1102,7 @@ namespace CadCsvExcg
             this.tableLayoutPanel10.ResumeLayout(false);
             this.tableLayoutPanel10.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_bom_id_pos)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_bom_skip_pos)).EndInit();
             this.grpCad.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel5.ResumeLayout(false);
@@ -1147,6 +1181,8 @@ namespace CadCsvExcg
         private System.Windows.Forms.CheckBox cb_output_include;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel11;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.NumericUpDown num_bom_skip_pos;
     }
 }
 

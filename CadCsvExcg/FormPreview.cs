@@ -114,6 +114,10 @@ namespace CadCsvExcg
             } else if ((bool)e.Result == true)
             {
                 this.Controls.Add(_dataGridView);
+                foreach (DataGridViewColumn column in _dataGridView.Columns)
+                {
+                    column.HeaderCell.ToolTipText = $"Column {column.Index + 1}";
+                }
                 this.Text = _filePath;
             }
         }

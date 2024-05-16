@@ -30,13 +30,13 @@
         {
             this.SuspendLayout();
             // 
-            // FormPreview2
+            // FormPreview
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Name = "FormPreview2";
+            this.Name = "FormPreview";
             this.ShowIcon = false;
             this.Text = "Preview";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormPreview2_FormClosing);

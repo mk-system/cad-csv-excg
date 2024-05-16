@@ -331,9 +331,10 @@ namespace CadCsvExcg
                 (Delimiter)this.ddl_cad_delimiter.SelectedIndex,
                 (Delimiter)this.ddl_bom_delimiter.SelectedIndex,
                 (Delimiter)this.ddl_output_delimiter.SelectedIndex,
-                (int)this.num_cad_id_pos.Value,
-                (int)this.num_bom_id_pos.Value,
-                (int)this.num_cad_quantity_pos.Value,
+                (int)this.num_cad_id_pos.Value - 1,
+                (int)this.num_bom_id_pos.Value - 1,
+                (int)this.num_cad_quantity_pos.Value - 1,
+                (int)this.num_bom_skip_pos.Value - 1,
                 (bool)this.cb_cad_header.Checked,
                 (bool)this.cb_bom_header.Checked,
                 (bool)this.cb_output_exclude.Checked,
@@ -407,6 +408,7 @@ namespace CadCsvExcg
                 this.cb_bom_header.Checked = !!Properties.Settings.Default.bom_header;
                 this.ddl_bom_delimiter.SelectedIndex = (int)Properties.Settings.Default.bom_delimiter;
                 this.num_bom_id_pos.Value = (int)Properties.Settings.Default.bom_id_pos;
+                this.num_bom_skip_pos.Value = (int)Properties.Settings.Default.bom_skip_pos;
                 // OUTPUT
                 this.lbtn_output_dir.Text = Properties.Settings.Default.output_dir;
                 this.ddl_output_encoding.SelectedIndex = (int)Properties.Settings.Default.output_encoding;
@@ -466,6 +468,8 @@ namespace CadCsvExcg
                 Properties.Settings.Default.bom_header = !!this.cb_bom_header.Checked;
                 Properties.Settings.Default.bom_delimiter = (int)this.ddl_bom_delimiter.SelectedIndex;
                 Properties.Settings.Default.bom_id_pos = (int)this.num_bom_id_pos.Value;
+                Properties.Settings.Default.bom_skip_pos = (int)this.num_bom_skip_pos.Value;
+
 
                 Properties.Settings.Default.output_dir = this.lbtn_output_dir.Text;
                 Properties.Settings.Default.output_encoding = (int)this.ddl_output_encoding.SelectedIndex;

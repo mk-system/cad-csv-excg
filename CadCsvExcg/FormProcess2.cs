@@ -21,7 +21,7 @@ namespace CadCsvExcg
 
         private List<string> _fileList1, _fileList2;
 
-        private int _px1, _qx, _px2;
+        private int _px1, _qx, _px2, _sx;
 
         private Delimiter _delimiter1, _delimiter2, _outDelimiter;
         private bool _hasHeader1, _hasHeader2, _isExclude, _isInclude, _isReady1 = false, _isReady2 = false;
@@ -46,6 +46,7 @@ namespace CadCsvExcg
             _px1 = formData.Px1;
             _px2 = formData.Px2;
             _qx = formData.Qx;
+            _sx = formData.Sx;
             _delimiter1 = formData.Delimiter1;
             _delimiter2 = formData.Delimiter2;
             _outDelimiter = formData.Delimiter3;
@@ -110,7 +111,6 @@ namespace CadCsvExcg
         {
             if (_isReady1 && _isReady2 && !_worker3.IsBusy)
             {
-                Console.WriteLine("START COMBINE");
                 _worker3.RunWorkerAsync();
             }
         }
@@ -151,9 +151,8 @@ namespace CadCsvExcg
                     using (var reader = new StreamReader(file))
                     using (var csv = new CsvReader(reader, config))
                     {
-                        csv.Context.RegisterClassMap(new CadMap(fileName, _px1, _qx));
+                        csv.Context.RegisterClassMap(new CadMap(fileName, _px1, _qx, _sx));
                         var records = csv.GetRecords<Cad>();
-
                         var summarizedRecords = records
                             .GroupBy(r => new { r.FileName, r.PartNo })
                             .Select(g => new Cad
@@ -162,12 +161,10 @@ namespace CadCsvExcg
                                 PartNo = g.Key.PartNo,
                                 Quantity = g.Sum(r => r.Quantity)
                             });
-
                         allRecords.AddRange(summarizedRecords.ToList());
                     }
 
                 }
-
                 e.Result = allRecords
                     .OrderBy(record => record.FileName)
                     .ThenBy(record => record.PartNo)
@@ -233,7 +230,7 @@ namespace CadCsvExcg
                     using (var reader = new StreamReader(file))
                     using (var csv = new CsvReader(reader, config))
                     {
-                        csv.Context.RegisterClassMap(new BomMap(_px2));
+                        csv.Context.RegisterClassMap(new BomMap(_px2, _sx));
                         var records = csv.GetRecords<Bom>();
                         allRecords.AddRange(records.ToList());
                     }
@@ -275,6 +272,7 @@ namespace CadCsvExcg
             else
             {
                 _records2 = (List<Bom>)e.Result;
+                foreach (var record in _records2)
                 _isReady2 = true;
                 StartCombine();
             }
@@ -293,6 +291,20 @@ namespace CadCsvExcg
                 var joinedRecords = from cad in _records1
                                     join bom in _records2
                                     on cad.PartNo equals bom.PartNo
+                                    where bom.IsSkip != true
+                                    select new
+                                    {
+                                        FileName = cad.FileName,
+                                        PartNo = cad.PartNo,
+                                        Quantity = cad.Quantity,
+                                        ItemNo = bom.ItemNo,
+                                        OtherColumns = bom.OtherColumns,
+                                    };
+
+                var skippedRecords = from cad in _records1
+                                    join bom in _records2
+                                    on cad.PartNo equals bom.PartNo
+                                    where bom.IsSkip
                                     select new
                                     {
                                         FileName = cad.FileName,
@@ -321,8 +333,21 @@ namespace CadCsvExcg
                                         where g.Count() > 1
                                         from row in g
                                         select row;
-                        
 
+                if (skippedRecords.Any())
+                {
+                    isError = true;
+                    errorRecords.AddRange(
+                        skippedRecords.Select(r => new ErrorOutput
+                        {
+                            FileName = r.FileName,
+                            PartNo = r.PartNo,
+                            Quantity = r.Quantity,
+                            ErrorCode = "**(任意)",
+                            ErrorDesc = "(例)使用禁止部品です。代替品を検討してください。"
+                        })
+                    );
+                }
 
                 if (notJoinedRecords.Any())
                 {
@@ -379,20 +404,22 @@ namespace CadCsvExcg
                         csv.WriteRecords(errorRecords);
                     }
                 }
-                else if (_isInclude && !String.IsNullOrEmpty(_includeName))
+                
+                if (_isInclude && !String.IsNullOrEmpty(_includeName))
                 {
                     var records = joinedRecords.Select(r => (dynamic)r).ToList();
 
                     int index = 0;
                     foreach (var group in joinedRecords.GroupBy(r => r.FileName))
                     {
-                        string fileName = group.Key;
+                        // TODO: shift to left and add new column name with includeName
                         dynamic newRecord = new ExpandoObject();
                         newRecord.FileName = $"CT-{_includeName}";
-                        newRecord.PartNo = fileName;
+                        newRecord.PartNo = group.Key;
                         newRecord.Quantity = 1;
                         newRecord.ItemNo = "";
                         newRecord.OtherColumns = otherColumnsWithEmptyValue;
+
                         records.Insert(index, newRecord);
                         index++;
                     }
@@ -411,7 +438,7 @@ namespace CadCsvExcg
                     {
                         dynamic expando = new ExpandoObject();
                         ((IDictionary<string, object>)expando)["親品目番号"] = record.FileName;
-                        ((IDictionary<string, object>)expando)["部品型式"] = record.PartNo;
+                        ((IDictionary<string, object>)expando)["子品目番号"] = record.PartNo;
                         ((IDictionary<string, object>)expando)["員数"] = record.Quantity;
                         if (!_isExclude && record.OtherColumns != null && record.OtherColumns is Dictionary<string, string>)
                         {
@@ -461,7 +488,7 @@ namespace CadCsvExcg
                         {
                             dynamic expando = new ExpandoObject();
                             ((IDictionary<string, object>)expando)["親品目番号"] = record.FileName;
-                            ((IDictionary<string, object>)expando)["部品型式"] = record.PartNo;
+                            ((IDictionary<string, object>)expando)["子品目番号"] = record.PartNo;
                             ((IDictionary<string, object>)expando)["員数"] = record.Quantity;
                             if (!_isExclude && record.OtherColumns != null && record.OtherColumns is Dictionary<string, string>)
                             {
@@ -484,7 +511,6 @@ namespace CadCsvExcg
                     }
                 }
 
-   
                 if (worker.CancellationPending)
                 {
                     e.Cancel = true;
@@ -561,7 +587,7 @@ namespace CadCsvExcg
     }
     public sealed class CadMap : ClassMap<Cad>
     {
-        public CadMap(string fileName, int px, int qx)
+        public CadMap(string fileName, int px, int qx, int sx)
         {
             Map(m => m.FileName).Constant(fileName);
             Map(m => m.PartNo).Index(px);
@@ -580,16 +606,34 @@ namespace CadCsvExcg
     {
         public string ItemNo { get; set; }
         public string PartNo { get; set; }
+        public bool IsSkip { get; set; }
 
         [Optional]
         public Dictionary<string, string> OtherColumns { get; set; } = new Dictionary<string, string>();
     }
     public sealed class BomMap : ClassMap<Bom>
     {
-        public BomMap(int px)
+        public BomMap(int px, int sx)
         {
             Map(m => m.ItemNo).Index(0);
             Map(m => m.PartNo).Index(px);
+            Map(m => m.IsSkip).Convert(args =>
+            {
+                string skipCol = args.Row.GetField<string>(sx);
+                Console.WriteLine(skipCol);
+                if (int.TryParse(skipCol, out int value))
+                {
+                    if (value == 1)
+                    {
+                        return true;
+                    }
+                }
+                else if (skipCol == "1")
+                {
+                    return true;
+                }
+                return false;
+            });
             Map(m => m.OtherColumns).Convert(args =>
             {
                 var fieldHeaders = args.Row.HeaderRecord;
@@ -597,7 +641,7 @@ namespace CadCsvExcg
                 int columnIndex = 2;
                 for (int i = 1; i < args.Row.ColumnCount; i++)
                 {
-                    if (i != px)
+                    if (i != px && i != sx)
                     {
                         var columnName = fieldHeaders != null ? fieldHeaders[i] : $"Column{columnIndex}";
                         var columnValue = args.Row.GetField<string>(i);
@@ -625,12 +669,13 @@ namespace CadCsvExcg
         public ErrorOutputMap()
         {
             Map(m => m.FileName).Name("親品目番号");
-            Map(m => m.PartNo).Name("部品型式");
+            Map(m => m.PartNo).Name("子品目番号");
             Map(m => m.Quantity).Name("員数");
             Map(m => m.ErrorCode).Name("エラーコード");
             Map(m => m.ErrorDesc).Name("エラー内容");
         }
     }
+
     public interface IFormProcessData
     {
         List<string> FileList1 { get; }
@@ -641,6 +686,7 @@ namespace CadCsvExcg
         int Px1 { get; }
         int Px2 { get; }
         int Qx { get; }
+        int Sx { get; }
         bool HasHeader1 { get; }
         bool HasHeader2 { get; }
         bool IsExclude { get; }
@@ -661,6 +707,7 @@ namespace CadCsvExcg
             int px1,
             int px2,
             int qx,
+            int sx,
             bool hasHeader1,
             bool hasHeader2,
             bool isExlcude,
@@ -678,6 +725,7 @@ namespace CadCsvExcg
             Px1 = px1;
             Px2 = px2;
             Qx = qx;
+            Sx = sx;
             HasHeader1 = hasHeader1;
             HasHeader2 = hasHeader2;
             IsExclude = isExlcude;
@@ -695,6 +743,7 @@ namespace CadCsvExcg
         public int Px1 { get; }
         public int Px2 { get; }
         public int Qx { get; }
+        public int Sx { get; }
         public bool HasHeader1 { get; }
         public bool HasHeader2 { get; }
         public bool IsExclude { get; }
