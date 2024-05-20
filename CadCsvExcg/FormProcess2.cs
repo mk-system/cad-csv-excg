@@ -343,8 +343,8 @@ namespace CadCsvExcg
                             FileName = r.FileName,
                             PartNo = r.PartNo,
                             Quantity = r.Quantity,
-                            ErrorCode = "**(任意)",
-                            ErrorDesc = "(例)使用禁止部品です。代替品を検討してください。"
+                            ErrorCode = "03",
+                            ErrorDesc = "使用禁止部品です。代替品を検討してください。"
                         })
                     );
                 }
@@ -359,7 +359,7 @@ namespace CadCsvExcg
                             PartNo = r.PartNo,
                             Quantity = r.Quantity,
                             ErrorCode = "01",
-                            ErrorDesc = "PLM品目にない構成品",
+                            ErrorDesc = "PLM品目にない構成品。",
                         })
                     );
                 }
@@ -374,7 +374,7 @@ namespace CadCsvExcg
                             PartNo = r.PartNo,
                             Quantity = r.Quantity,
                             ErrorCode = "02",
-                            ErrorDesc = "構成品がPLM品目マスタに重複されています",
+                            ErrorDesc = "構成品がPLM品目マスタに重複されています。",
                         })
                     );
                 }
@@ -620,15 +620,7 @@ namespace CadCsvExcg
             Map(m => m.IsSkip).Convert(args =>
             {
                 string skipCol = args.Row.GetField<string>(sx);
-                Console.WriteLine(skipCol);
-                if (int.TryParse(skipCol, out int value))
-                {
-                    if (value == 1)
-                    {
-                        return true;
-                    }
-                }
-                else if (skipCol == "1")
+                if (skipCol == "使用不可")
                 {
                     return true;
                 }
