@@ -11,7 +11,6 @@ using System.Globalization;
 using CsvHelper;
 using System.IO;
 using System.Dynamic;
-using System.Windows.Controls;
 
 namespace CadCsvExcg
 {
@@ -185,7 +184,7 @@ namespace CadCsvExcg
             }
             else if (e.Cancelled)
             {
-                MessageBox.Show("Process cancelled when reading cad file", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Process cancelled while reading cad file", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Terminate();
             }
             else
@@ -266,13 +265,12 @@ namespace CadCsvExcg
             }
             else if (e.Cancelled)
             {
-                MessageBox.Show("Process cancelled when reading bom file", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Process cancelled while reading bom file", "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Terminate();
             }
             else
             {
                 _records2 = (List<Bom>)e.Result;
-                foreach (var record in _records2)
                 _isReady2 = true;
                 StartCombine();
             }
@@ -295,9 +293,9 @@ namespace CadCsvExcg
                                     select new
                                     {
                                         FileName = cad.FileName,
-                                        PartNo = cad.PartNo,
-                                        Quantity = cad.Quantity,
                                         ItemNo = bom.ItemNo,
+                                        Quantity = cad.Quantity,
+                                        PartNo = cad.PartNo,
                                         OtherColumns = bom.OtherColumns,
                                     };
 
@@ -308,9 +306,9 @@ namespace CadCsvExcg
                                     select new
                                     {
                                         FileName = cad.FileName,
-                                        PartNo = cad.PartNo,
-                                        Quantity = cad.Quantity,
                                         ItemNo = bom.ItemNo,
+                                        Quantity = cad.Quantity,
+                                        PartNo = cad.PartNo,
                                         OtherColumns = bom.OtherColumns,
                                     };
 
@@ -322,9 +320,9 @@ namespace CadCsvExcg
                                        select new
                                        {
                                            FileName = cad.FileName,
-                                           PartNo = cad.PartNo,
-                                           Quantity = cad.Quantity,
                                            ItemNo = bom?.ItemNo,
+                                           Quantity = cad.Quantity,
+                                           PartNo = cad.PartNo,
                                            OtherColumns = bom?.OtherColumns
                                        };
 
@@ -408,16 +406,15 @@ namespace CadCsvExcg
                 if (_isInclude && !String.IsNullOrEmpty(_includeName))
                 {
                     var records = joinedRecords.Select(r => (dynamic)r).ToList();
-
                     int index = 0;
                     foreach (var group in joinedRecords.GroupBy(r => r.FileName))
                     {
                         // TODO: shift to left and add new column name with includeName
                         dynamic newRecord = new ExpandoObject();
                         newRecord.FileName = $"CT-{_includeName}";
-                        newRecord.PartNo = group.Key;
+                        newRecord.ItemNo = group.Key;
                         newRecord.Quantity = 1;
-                        newRecord.ItemNo = "";
+                        newRecord.PartNo = "";
                         newRecord.OtherColumns = otherColumnsWithEmptyValue;
 
                         records.Insert(index, newRecord);
@@ -426,9 +423,9 @@ namespace CadCsvExcg
 
                     dynamic prependRecord = new ExpandoObject();
                     prependRecord.FileName = "";
-                    prependRecord.PartNo = $"CT-{_includeName}";
+                    prependRecord.ItemNo = $"CT-{_includeName}";
                     prependRecord.Quantity = 1;
-                    prependRecord.ItemNo = "";
+                    prependRecord.PartNo = "";
                     prependRecord.OtherColumns = otherColumnsWithEmptyValue;
                     records.Insert(0, prependRecord);
 
@@ -438,16 +435,20 @@ namespace CadCsvExcg
                     {
                         dynamic expando = new ExpandoObject();
                         ((IDictionary<string, object>)expando)["親品目番号"] = record.FileName;
-                        ((IDictionary<string, object>)expando)["子品目番号"] = record.PartNo;
+                        ((IDictionary<string, object>)expando)["子品目番号"] = record.ItemNo;
                         ((IDictionary<string, object>)expando)["員数"] = record.Quantity;
-                        if (!_isExclude && record.OtherColumns != null && record.OtherColumns is Dictionary<string, string>)
+                        if (!_isExclude)
                         {
-                            ((IDictionary<string, object>)expando)["品目番号"] = record.ItemNo;
-                            foreach (var kvp in record.OtherColumns)
+                            ((IDictionary<string, object>)expando)["部品型式"] = record.PartNo;
+                            if (record.OtherColumns != null && record.OtherColumns is Dictionary<string, string>)
                             {
-                                string key = kvp.Key.ToString();
-                                string value = kvp.Value.ToString();
-                                ((IDictionary<string, object>)expando)[key] = value;
+                           
+                                foreach (var kvp in record.OtherColumns)
+                                {
+                                    string key = kvp.Key.ToString();
+                                    string value = kvp.Value.ToString();
+                                    ((IDictionary<string, object>)expando)[key] = value;
+                                }
                             }
                         }
 
@@ -477,9 +478,9 @@ namespace CadCsvExcg
                         var records = group.Select(r => (dynamic)r).ToList();
                         dynamic prependRecord = new ExpandoObject();
                         prependRecord.FileName = "";
-                        prependRecord.PartNo = fileName;
+                        prependRecord.ItemNo = fileName;
                         prependRecord.Quantity = 1;
-                        prependRecord.ItemNo = "";
+                        prependRecord.PartNo = "";
                         prependRecord.OtherColumns = otherColumnsWithEmptyValue;
                         records.Insert(0, prependRecord);
 
@@ -488,16 +489,19 @@ namespace CadCsvExcg
                         {
                             dynamic expando = new ExpandoObject();
                             ((IDictionary<string, object>)expando)["親品目番号"] = record.FileName;
-                            ((IDictionary<string, object>)expando)["子品目番号"] = record.PartNo;
+                            ((IDictionary<string, object>)expando)["子品目番号"] = record.ItemNo;
                             ((IDictionary<string, object>)expando)["員数"] = record.Quantity;
-                            if (!_isExclude && record.OtherColumns != null && record.OtherColumns is Dictionary<string, string>)
+                            if (!_isExclude)
                             {
-                                ((IDictionary<string, object>)expando)["品目番号"] = record.ItemNo;
-                                foreach (var kvp in record.OtherColumns)
+                                ((IDictionary<string, object>)expando)["部品型式"] = record.PartNo;
+                                if (record.OtherColumns != null && record.OtherColumns is Dictionary<string, string>)
                                 {
-                                    string key = kvp.Key.ToString();
-                                    string value = kvp.Value.ToString();
-                                    ((IDictionary<string, object>)expando)[key] = value;
+                                    foreach (var kvp in record.OtherColumns)
+                                    {
+                                        string key = kvp.Key.ToString();
+                                        string value = kvp.Value.ToString();
+                                        ((IDictionary<string, object>)expando)[key] = value;
+                                    }
                                 }
                             }
                             resultRecords.Add(expando);
@@ -619,8 +623,8 @@ namespace CadCsvExcg
             Map(m => m.PartNo).Index(px);
             Map(m => m.IsSkip).Convert(args =>
             {
-                string skipCol = args.Row.GetField<string>(sx);
-                if (skipCol == "使用不可")
+                string skipStr = args.Row.GetField<string>(sx);
+                if (skipStr.Equals("使用不可"))
                 {
                     return true;
                 }
@@ -633,13 +637,17 @@ namespace CadCsvExcg
                 int columnIndex = 2;
                 for (int i = 1; i < args.Row.ColumnCount; i++)
                 {
-                    if (i != px && i != sx)
+                    if (i != px)
                     {
                         var columnName = fieldHeaders != null ? fieldHeaders[i] : $"Column{columnIndex}";
                         var columnValue = args.Row.GetField<string>(i);
                         if (!string.IsNullOrWhiteSpace(columnValue))
                         {
                             otherColumns[columnName] = columnValue;
+                        }
+                        else
+                        {
+                            otherColumns[columnName] = "";
                         }
                         columnIndex++;
                     }
@@ -661,7 +669,7 @@ namespace CadCsvExcg
         public ErrorOutputMap()
         {
             Map(m => m.FileName).Name("親品目番号");
-            Map(m => m.PartNo).Name("子品目番号");
+            Map(m => m.PartNo).Name("部品型式");
             Map(m => m.Quantity).Name("員数");
             Map(m => m.ErrorCode).Name("エラーコード");
             Map(m => m.ErrorDesc).Name("エラー内容");
